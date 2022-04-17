@@ -46,22 +46,22 @@
                             <div class="accordion-body mt-1 position-relative">
                                 <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
                                     <div class="col-1 left me-3">
-                                        <img src="assets/img/bca.svg" alt="">
+                                        <img src="assets/img/jne.svg" alt="">
                                     </div>
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
-                                        <span class="fw-600 fz-12">Bank BCA </span>
-                                        <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BCA. Metode Pembayaran Lebih Mudah</span>
+                                        <span class="fw-600 fz-12">JNE </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman JNE pastikan tersedia di kotamu</span>
                                         <input type="radio" name="radio">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
                                 <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
                                     <div class="col-1 left me-3">
-                                        <img src="assets/img/mandiri.svg" alt="">
+                                        <img src="assets/img/sicepat.svg" alt="">
                                     </div>
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
-                                        <span class="fw-600 fz-12">Bank Mandiri </span>
-                                        <span class="fz-9" style="width: 90%">Hanya menerima dari Bank Mandiri termasuk Bank Syariah Metode Pembayaran Lebih Mudah</span>
+                                        <span class="fw-600 fz-12">Sicepat </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman SICEPAT pastikan tersedia di kotamu</span>
                                         <input type="radio" name="radio">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
@@ -71,9 +71,8 @@
                                         <img src="assets/img/bni.svg" alt="">
                                     </div>
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
-                                        <span class="fw-600 fz-12">Bank BNI </span>
-                                        <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BNI
-                                            Metode Pembayaran Lebih Mudah</span>
+                                        <span class="fw-600 fz-12">J&T Express </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman J&T Express pastikan tersedia di kotamu</span>
                                         <input type="radio" name="radio">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
@@ -92,13 +91,35 @@
                         </p>
                         <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body mt-1">
-                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="border-top: 1px solid rgba(196, 196, 196, 0.2) !important;">
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
                                     <div class="col-1 left me-3">
-                                        <img src="assets/img/alfamart.svg" alt="">
+                                        <img src="assets/img/jne.svg" alt="">
                                     </div>
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
-                                        <span class="fw-600 fz-12">Alfamart </span>
-                                        <span class="fz-10">Hanya menerima dari Alfamart. Metode Pembayaran Lebih Mudah</span>
+                                        <span class="fw-600 fz-12">JNE </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman JNE pastikan tersedia di kotamu</span>
+                                        <input type="radio" name="radio">
+                                        <span class="checkmark position-absolute top-50 me-2"></span>
+                                    </div>
+                                </label>
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                    <div class="col-1 left me-3">
+                                        <img src="assets/img/sicepat.svg" alt="">
+                                    </div>
+                                    <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                        <span class="fw-600 fz-12">Sicepat </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman SICEPAT pastikan tersedia di kotamu</span>
+                                        <input type="radio" name="radio">
+                                        <span class="checkmark position-absolute top-50 me-2"></span>
+                                    </div>
+                                </label>
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                    <div class="col-1 left me-3">
+                                        <img src="assets/img/bni.svg" alt="">
+                                    </div>
+                                    <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                        <span class="fw-600 fz-12">J&T Express </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman J&T Express pastikan tersedia di kotamu</span>
                                         <input type="radio" name="radio">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
@@ -110,20 +131,42 @@
                         <p class="accordion-header" id="flush-headingThree">
                             <button class="accordion-button d-flex align-items-center gap-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
                                 <div class="d-flex flex-column gap-2">
-                                    <span class="fz-12 fw-600">Reguler</span>
+                                    <span class="fz-12 fw-600">Kargo</span>
                                     <span class="fz-10">Akan diterima pada tanggal 14 - 16 Apr</span>
                                 </div>
                             </button>
                         </p>
                         <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body mt-1">
-                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="border-top: 1px solid rgba(196, 196, 196, 0.2) !important;">
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
                                     <div class="col-1 left me-3">
-                                        <img src="assets/img/indomaret.svg" alt="">
+                                        <img src="assets/img/jne.svg" alt="">
                                     </div>
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
-                                        <span class="fw-600 fz-12">Indomaret</span>
-                                        <span class="fz-10">Hanya menerima dari Indomaret. Metode Pembayaran Lebih Mudah</span>
+                                        <span class="fw-600 fz-12">JNE </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman JNE pastikan tersedia di kotamu</span>
+                                        <input type="radio" name="radio">
+                                        <span class="checkmark position-absolute top-50 me-2"></span>
+                                    </div>
+                                </label>
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                    <div class="col-1 left me-3">
+                                        <img src="assets/img/sicepat.svg" alt="">
+                                    </div>
+                                    <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                        <span class="fw-600 fz-12">Sicepat </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman SICEPAT pastikan tersedia di kotamu</span>
+                                        <input type="radio" name="radio">
+                                        <span class="checkmark position-absolute top-50 me-2"></span>
+                                    </div>
+                                </label>
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                    <div class="col-1 left me-3">
+                                        <img src="assets/img/bni.svg" alt="">
+                                    </div>
+                                    <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                        <span class="fw-600 fz-12">J&T Express </span>
+                                        <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman J&T Express pastikan tersedia di kotamu</span>
                                         <input type="radio" name="radio">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>

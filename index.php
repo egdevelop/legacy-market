@@ -18,12 +18,14 @@
 
     <div class="body-wrapper">
         <!-- Navbar -->
-        <div class="container mt-3 position-absolute top-0">
-            <form class="d-flex gap-3 align-items-center justify-content-center nosubmit">
-                <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
-                <a href="keranjang.php" class="text-light iconNavbar z-1"><i class="ri-shopping-cart-line"></i></a>
-                <span class="iconNavbar z-1"><i class="ri-customer-service-2-line"></i></span>
-            </form>
+        <div class="bg-blue">
+            <div class="container mt-3 position-absolute top-0">
+                <form class="d-flex gap-3 align-items-center justify-content-center nosubmit">
+                    <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
+                    <a href="keranjang.php" class="text-light iconNavbar z-1"><i class="ri-shopping-cart-line"></i></a>
+                    <span class="iconNavbar z-1"><i class="ri-customer-service-2-line"></i></span>
+                </form>
+            </div>
         </div>
 
         <!-- Carousel -->
