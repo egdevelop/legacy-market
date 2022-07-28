@@ -1,17 +1,40 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
+session_start();
+if(!isset($_SESSION['userid'])){
+    header('Location: login.php');
+    exit();
+}
+if($_POST['idCart'] == ''){
+    header('Location: keranjang.php');
+    exit();
+}
+$idCart = explode(',', $_POST['idCart']);
+$idCart = array_filter($idCart);
+$ccc = 0;
+foreach($idCart as $id){
+    $query = mysqli_query($conn, "SELECT * FROM carts WHERE id = '$id'");
+    $row = mysqli_fetch_assoc($query);
+    $data[$ccc] = getProductByVariant($row['id_variant']);
+    $data[$ccc]['quantity'] = $row['total'];
+    $ccc++;
+}
+
+$vou = mysqli_query($conn, "SELECT * FROM vouchers WHERE owner_id = '".$_SESSION['userid']."'");
+while($voucher = mysqli_fetch_assoc($vou)){
+    $vouchers[] = $voucher;
+}
+
+$addres = mysqli_query($conn, "SELECT * FROM address WHERE user_id = '$_SESSION[userid]'");
+$address = mysqli_fetch_assoc($addres);
+
+$costs = getCost($address['city_id'], 151, 1000);
+?>
 <!doctype html>
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css?<?php echo time(); ?>">
-    <link rel="stylesheet" href="assets/css/style2.css?<?php echo time(); ?>">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <?php include "components/head.php"; ?>
 
     <title>Checkout</title>
 </head>
@@ -36,12 +59,11 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between py-3">
                     <div class="left">
-                        <span class="fz-12 fw-bold text-light">Checkout</span>
+                        <span class="fz-12 text-light">Checkout</span>
                     </div>
                     <div class="right">
                         <form class="d-flex gap-3 align-items-center justify-content-center nosubmit">
-                            <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk"
-                                aria-label="Search">
+                            <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
                         </form>
                     </div>
                 </div>
@@ -49,636 +71,392 @@
         </div>
 
         <!-- Alamat -->
-        <div class="container-lg bg-white py-4 mt-keranjang">
-            <div class="container d-flex gap-5 align-items-center justify-content-between">
-                <div class="left d-flex flex-column">
-                    <div class="d-flex align-items-center gap-2">
+        <div class="container bg-white py-4  mt-keranjang">
+            <div class="container">
+                <div class="row">
+                    <div class="col-10 d-flex align-items-center gap-2">
                         <i class="ri-map-pin-line blue"></i>
-                        <span class="fz-12">Alamat Pengiriman</span>
+                        <span class="fw-600 fz-12">Alamat Pengiriman</span>
                     </div>
-                    <div class="fz-12 mt-3 fw-600">Mochammad Naufal (+62) 85895372384</div>
-                </div>
-                <div class="center">
-                    <div class="fz-12 mt-2">Sukahening wetan sebelah kiri masjid Al ikhlas RT/RW 02/21 Kel Karsamenak,
-                        KOTA
-                        TASIKMALAYA - KAWALU, JAWA BARAT, ID 46182
+                    <div class="col-2">
+                        <a href="alamat.php" class="fz-12 blue">Ubah</a>
                     </div>
                 </div>
-                <div class="right">
-                    <a href="alamat.php" class="fz-12 blue">Ubah</a>
+                <div class="fz-12 mt-3"><?= $address['name'] ?> <?= $address['no'] ?></div>
+                <div class="fz-12 mt-2"><?= $address['detail'] ?>, <?= $address['city'] ?> - <?= $address['district'] ?>, <?= $address['province'] ?>, ID <?= $address['code'] ?>
                 </div>
             </div>
         </div>
 
         <!-- Produk dipesan -->
-        <div class="container-lg bg-white py-4 mt-3">
+        <div class="container bg-white py-4 border-top-custom">
             <div class="container">
                 <div class="row">
                     <div class="col-6">
                         <span class="fw-600 fz-12">Produk Dipesan</span>
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10">Harga</span>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12">Harga</span>
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10">Jumlah</span>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12">Jumlah </span>
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10">Subtotal produk</span>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12">Subtotal</span>
                     </div>
                 </div>
+                <?php foreach($data as $row){ ?>
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex align-items-end justify-content-between gap-2 mt-2">
+                            <div class="d-flex gap-2">
+                                <img src="<?= $row['photo'] ?>" alt="" class="varian">
+                                <div class="d-flex flex-column">
+                                    <span class="fw-600 fz-12"><?= $row['name'] ?></span>
+                                    <span class="fz-12 fw-600 orange d-block d-lg-none" style="padding-bottom: 0px;">Rp. <?= $row['price'] ?></span>
+                                    <span class="fz-12 fw-600 orange"><br>Eceran</span>
+                                    <span class="fz-12 fw-600 d-none d-lg-block">Variasi : M - Coklat</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12 fw-600 orange">Rp. <?= $row['price'] ?></span>
+                    </div>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12">x<?= $row['quantity'] ?></span>
+                    </div>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12 fw-600 orange">Rp. <?= $row['price'] * $row['quantity'] ?></span>
+                    </div>
+                </div>
+                <?php 
+                $total = $total + ($row['price'] * $row['quantity']);
+                $qty[] = $row['quantity'];
+                $idProducts[] = $row['id_product'];
+                } ?>
+            </div>
+        </div>
 
-                <div class="row d-flex align-items-center">
-                    <div class="col-4 pe-0">
-                        <span class="fw-600 fz-12">
-                            <div class="d-flex align-items-end justify-content-between gap-2 mt-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/img/varian.jpg" alt="" class="imgCheckout">
-                                    <div class="d-flex flex-column">
-                                        <span class="fz-10 fw-500">Jocoproduction - Topi Baseball Anak Laki-laki &
-                                            Perempuan
-                                            Motif bordir Alfabeth
-                                        </span>
-                                        <div class="d-flex gap-3 mt-2">
-                                            <span class="fz-12 fw-600">Eceran</span>
+        <!-- Opsi Pengiriman -->
+        <div class="container bg-white py-4 border-top-custom d-none d-lg-block">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-lg-4">
+                        <img src="assets/img/truck.svg" alt="">
+                        <span class="fw-600 fz-12 border-b-2">Opsi Pengiriman</span>
+                    </div>
+                    <!-- mobile -->
+                    <div class="d-flex d-lg-none flex-column mt-2">
+                            <span class="fz-12">Reguler</span>
+                            <span class="fz-11 abu">Estimasi sampai 10 - 14 Apr</span>
+                    </div>
+                    <!-- Desktop -->
+                    <div class="col-4 d-none d-lg-block">
+                        <div class="d-flex flex-column">
+                            <span class="fz-12">Reguler</span>
+                            <span class="fz-11 abu">Estimasi sampai 10 - 14 Apr</span>
+                        </div>
+                    </div>
+                    <div class="col-2 d-none d-lg-block">
+                        <span class="fz-12 orange" id="pengiriman">Rp. <?= $costs[1]['harga'] ?></span>
+                    </div>
+                    <div class="col-2 d-none d-lg-block">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#opsiPengiriman" class="fz-12 blue">Ubah</a>
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="opsiPengiriman" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <span class="fz-14 fw-600 modal-title" id="exampleModalLabel">Opsi Pengiriman</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="accordion accordion-flush" id="accordionFlushExample">
+                                <div class="accordion-item">
+                                    <p class="accordion-header" id="flush-headingTwo">
+                                        <button class="accordion-button d-flex align-items-center gap-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                                            <div class="d-flex flex-column gap-2">
+                                                <span class="fz-12 fw-600">Reguler</span>
+                                            </div>
+                                        </button>
+                                    </p>
+                                    <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body mt-1">
+                                            <?php $asd = 0; 
+                                                foreach($costs as $c) : ?>
+                                            <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                                <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                                    <span class="fw-600 fz-12"><?= $c['name'] ?></span>
+                                                    <span class="fz-9 orange" style="width: 90%">Rp. <?= $c['harga'] ?></span>
+                                                    <input type="radio" name="radio" <?= ($asd == 0) ? "checked" : "" ?> onclick="
+                                                    document.getElementById('pengiriman').innerText = 'Rp. <?= $c['harga'] ?>';
+                                                    document.getElementById('pengiriman2').innerText = 'Rp. <?= $c['harga'] ?>';
+                                                    document.getElementById('total').innerText = '<?php $all = $total + $c['harga']; echo $all ?>';
+                                                    document.getElementById('cou').value = '<?= $c['name'] ?>';
+                                                    document.getElementById('amount').value = '<?php $all = $total + $c['harga']; echo $all ?>';">
+                                                    <span class="checkmark position-absolute top-50 me-2"></span>
+                                                </div>
+                                            </label>
+                                            <?php $asd++; 
+                                            endforeach; ?>
+                                            <!-- <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                                <div class="col-1 left me-3">
+                                                    <img src="assets/img/sicepat.svg" alt="">
+                                                </div>
+                                                <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                                    <span class="fw-600 fz-12">Sicepat </span>
+                                                    <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman SICEPAT pastikan tersedia di kotamu</span>
+                                                    <input type="radio" name="radio">
+                                                    <span class="checkmark position-absolute top-50 me-2"></span>
+                                                </div>
+                                            </label>
+                                            <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                                <div class="col-1 left me-3">
+                                                    <img src="assets/img/bni.svg" alt="">
+                                                </div>
+                                                <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                                    <span class="fw-600 fz-12">J&T Express </span>
+                                                    <span class="fz-9" style="width: 90%">Menggunakan jasa pengiriman J&T Express pastikan tersedia di kotamu</span>
+                                                    <input type="radio" name="radio">
+                                                    <span class="checkmark position-absolute top-50 me-2"></span>
+                                                </div>
+                                            </label> -->
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </span>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="fz-12 fw-600 btn btn-secondary" data-bs-dismiss="modal">Nanti saja</button>
+                            <button type="button" class="fz-12 fw-600 btn btn-primary" data-bs-dismiss="modal">Konfirmasi</button>
+                        </div>
+                        </div>
                     </div>
-                    <div class="col-2 d-flex flex-column ps-4">
-                        <span class="fz-10 fw-600">Variasi:</span>
-                        <span class="fz-10">M-Coklat</span>
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10 fw-600 orange">Rp20.000</span>
+                </div>
+                <div class="d-flex d-lg-none align-items-end justify-content-between gap-2 mt-2">
+                    <span class="fz-10 abu">*atur dipage selanjutnya</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voucher -->
+        <div class="container bg-white pt-4 pb-5 pb-lg-4 border-top-custom mb-5 mb-lg-0">
+            <div class="container">
+                <div class="row">
+                    <div class="col-8 col-lg-8 d-flex align-items-center">
+                        <img src="assets/img/voucher.svg" alt="" class="me-2">
+                        <span class="fz-11">Voucher</span>
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10">1</span>
+                    <div class="col-2 d-none d-lg-block">
+                        <!-- <img src="assets/img/voucherIcon.svg" alt=""> -->
                     </div>
-                    <div class="col-2">
-                        <span class="fz-10 fw-600 orange">Rp20.000</span>
+                    <!-- Desktop -->
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#gantiVoucher" class="col-4 col-lg-2 blue d-flex align-items-center">
+                        <span class="blue fz-11">Ganti Voucher</span>
+                        <!-- <i class="abu ri-arrow-right-s-line"></i> -->
+                    </a>
+
+                    <!-- Modal Voucher -->
+                    <?php include "partials/gantiVoucherModal.php"; ?>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Opsi Pengiriman -->
-    <div class="container-lg bg-white py-4 mt-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-4 d-flex gap-2 align-items-center">
-                    <span class="fz-16 yellow"><i class="ri-truck-fill"></i></span>
-                    <span class="fw-600 fz-12 border-b-2">Opsi Pengiriman</span>
-                </div>
-                <div class="col-4 d-flex flex-column">
-                    <span class="fz-10">Reguler</span>
-                    <span class="fz-10 abu">Estimasi sampai 10 - 14 Apr</span>
-                </div>
-                <div class="col-2">
-                    <span class="fz-10 orange fw-600">Rp20.000</span>
-                </div>
-                <div class="col-2">
-                    <a type="button" class="fz-11 blue" data-bs-toggle="modal" data-bs-target="#btnPengiriman">Ubah</a>
-                </div>
-                <!-- Modal Pengiriman -->
-                <div class="modal fade" id="btnPengiriman" data-bs-backdrop="static" data-bs-keyboard="false"
-                    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fz-13" id="staticBackdropLabel">Opsi Pengiriman</h5>
-                                <span class="yellow fz-18"><i class="ri-truck-fill"></i></span>
+        <!-- Metode Pembayaran -->
+        <div class="container bg-white py-4 mb-5 pb-5 border-top-custom d-none d-lg-block">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between gap-4">
+                    <div class="left gap-2 d-flex align-items-center">
+                        <i class="ri-money-dollar-circle-line orange"></i>
+                        <span class="fz-12 fw-600 me-3">Metode Pembayaran</span>
+                        <nav class="d-none d-lg-block">
+                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                <button class="fz-12 nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Transfer Bank</button>
+                                <button class="fz-12 nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Outlet</button>
+                                <button class="fz-12 nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Digital Payment</button>
                             </div>
-                            <div class="modal-body">
-                                <div class="accordion accordion-flush" id="accordionFlushExample">
-                                    <div class="accordion-item">
-                                        <p class="accordion-header" id="flush-headingOne">
-                                            <button class="accordion-button d-flex align-items-center gap-2 collapsed"
-                                                type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#flush-collapseOne" aria-expanded="false"
-                                                aria-controls="flush-collapseOne">
-                                                <div class="d-flex flex-column gap-2">
-                                                    <span class="fz-12 fw-600">Hemat</span>
-                                                    <span class="fz-10">Akan diterima pada tanggal 14 - 16 Apr</span>
-                                                </div>
-                                            </button>
-                                        </p>
-                                        <div id="flush-collapseOne" class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                            <div class="accordion-body position-relative">
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/jne.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">JNE</span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman JNE pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/sicepat.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">Sicepat </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman SICEPAT pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/bni.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">J&T Express </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman J&T Express pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="accordion-item">
-                                        <p class="accordion-header" id="flush-headingTwo">
-                                            <button class="accordion-button d-flex align-items-center gap-2 collapsed"
-                                                type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#flush-collapseTwo" aria-expanded="false"
-                                                aria-controls="flush-collapseTwo">
-                                                <div class="d-flex flex-column gap-2">
-                                                    <span class="fz-12 fw-600">Reguler</span>
-                                                    <span class="fz-10">Akan diterima pada tanggal 14 - 16 Apr</span>
-                                                </div>
-                                            </button>
-                                        </p>
-                                        <div id="flush-collapseTwo" class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
-                                            <div class="accordion-body mt-1">
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/jne.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">JNE </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman JNE pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/sicepat.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">Sicepat </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman SICEPAT pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/bni.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">J&T Express </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman J&T Express pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="accordion-item">
-                                        <p class="accordion-header" id="flush-headingThree">
-                                            <button class="accordion-button d-flex align-items-center gap-2 collapsed"
-                                                type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#flush-collapseThree" aria-expanded="false"
-                                                aria-controls="flush-collapseThree">
-                                                <div class="d-flex flex-column gap-2">
-                                                    <span class="fz-12 fw-600">Kargo</span>
-                                                    <span class="fz-10">Akan diterima pada tanggal 14 - 16 Apr</span>
-                                                </div>
-                                            </button>
-                                        </p>
-                                        <div id="flush-collapseThree" class="accordion-collapse collapse"
-                                            aria-labelledby="flush-headingThree"
-                                            data-bs-parent="#accordionFlushExample">
-                                            <div class="accordion-body mt-1">
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/jne.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">JNE </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman JNE pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/sicepat.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">Sicepat </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman SICEPAT pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                                <label class="radioWrapper ps-4 d-flex align-items-start py-3">
-                                                    <div class="left me-3">
-                                                        <img src="assets/img/bni.svg" alt="">
-                                                    </div>
-                                                    <div class="ps-1 pe-1 d-flex gap-2 flex-column">
-                                                        <div class="right">
-                                                            <span class="fw-600 fz-12">J&T Express </span>
-                                                        </div>
-                                                        <span class="fz-9" style="width: 90%">Menggunakan jasa
-                                                            pengiriman J&T Express pastikan tersedia di kotamu</span>
-                                                        <input type="radio" name="radio">
-                                                        <span class="checkmark me-2"></span>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn fz-13" data-bs-dismiss="modal">Nanti
-                                    saja</button>
-                                <button type="button"
-                                    class="text-light btn btn-blue px-3 py-2 fz-13">Konfirmasi</button>
-                            </div>
-                        </div>
+                            </nav>
                     </div>
+                    <a href="javascript:void(0)" class="right d-flex d-lg-none align-items-center ps-3">
+                        <span class="abu fz-10">Transfer Bank</span>
+                        <i class="abu ri-arrow-right-s-line"></i>
+                    </a>
                 </div>
-            </div>
-            <hr class=" my-3 py-0">
-            <div class="row">
-                <div class="col-8 d-flex align-items-center">
-                    <img src="assets/img/voucher.svg" alt="" class="me-2">
-                    <span class="fz-11">Voucher</span>
-                </div>
-                <div class="col-2 d-flex align-items-center gap-2">
-                    <!-- <span class="fz-14 blue"><i class="ri-checkbox-circle-fill"></i></span>
-                    <span class="text-light fz-10 fw-500 bg-yellow px-3">57% OFF</span> -->
-                </div>
-
-                <div class="col-2 d-flex align-items-center">
-                    <a href="voucher.php" type="button" class="fz-11 blue" data-bs-toggle="modal"
-                        data-bs-target="#btnVoucher">Pilih
-                        Voucher</a>
-                    <!-- <span class="fz-11 blue">Ganti Voucher</span> -->
-                </div>
-                <!-- Modal Voucher -->
-                <div class="modal fade" id="btnVoucher" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header d-block" style="border: none;">
-                                <div class="col-12 d-flex justify-content-between">
-                                    <h5 class="modal-title fz-13" id="staticBackdropLabel">Pilih Voucher</h5>
-                                    <span class="blue fz-18 me-3"><i class="ri-coupon-2-line"></i></span>
-                                </div>
-                                <div class="col-12">
-                                    <form
-                                        class="input-group d-flex align-items-center justify-content-between my-1 py-3 px-4 gap-4"
-                                        style="background-color: #F8F8F8;">
-                                        <h5 class="fz-10 mt-2">Tambah Voucher</h5>
-                                        <input class="voucherInput form-control bg-transparent py-1" type="search"
-                                            placeholder="Masukkan Kode Voucher" aria-label="Search"
-                                            style="width: 10rem; border-color:#C1C1C1; font-size: 12px">
-                                        <button class="btn fz-12 py-1"
-                                            style="color: #c1c1c1;border-color:#C1C1C1;">Pakai</button>
-                                    </form>
-                                </div>
+                <div class="tab-content mt-4 d-none d-lg-block" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/bca.svg" alt="">
                             </div>
-                            <div class="modal-body">
-                                <div class="d-flex justify-content-between gap-2 mb-3">
-                                    <span class="fz-12 fw-600">Voucher Gratis Ongkir</span>
-                                    <span class="fz-10">Pilih 1</span>
-                                </div>
-
-                                <label class="radioWrapper ps-1 d-flex align-items-start ">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkir.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="radioWrapper ps-1 d-flex align-items-start py-1">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkir.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="radioWrapper ps-1 d-flex align-items-start py-1">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkir.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="radioWrapper ps-1 d-flex align-items-start py-1">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkir.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="radioWrapper ps-1 d-flex align-items-start py-1">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkiroff.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label class="radioWrapper ps-1 d-flex align-items-start py-1">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkiroff.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">Bank BCA </span>
+                                <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BCA. Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="pe" value="bca" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn fz-13" data-bs-dismiss="modal">Nanti
-                                    saja</button>
-                                <button type="button"
-                                    class="text-light btn btn-blue px-3 py-2 fz-13">Konfirmasi</button>
+                        </label>
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/mandiri.svg" alt="">
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Metode Pembayaran -->
-    <div class="container-lg bg-white py-4 mt-3 mb-3">
-        <div class="container">
-            <div class="d-flex align-items-center justify-content-start gap-4">
-                <div class="left gap-2 d-flex align-items-center">
-                    <i class="ri-money-dollar-circle-line orange"></i>
-                    <span class="fz-12 fw-600">Metode Pembayaran</span>
-                </div>
-                <div class="right d-flex align-items-center ps-3">
-                    <label onclick="toggleVisibility('Menu1');"
-                        class="card-payment cursor-pointer fw-500 px-2 py-1 fz-10">
-                        <input type="radio" name="radioPayment" class="radio-payment" />
-                        <span class="radio-btn variasi px-2 py-1 fz-10">Transfer Bank</span>
-                    </label>
-                </div>
-                <div class="right d-flex align-items-center ps-3">
-                    <label onclick="toggleVisibility('Menu2');"
-                        class="card-payment cursor-pointer fw-500 px-2 py-1 fz-10">
-                        <input type="radio" name="radioPayment" class="radio-payment" />
-                        <span class="radio-btn variasi px-2 py-1 fz-10">Alfamart</span>
-                    </label>
-                </div>
-                <div class="right d-flex align-items-center ps-3">
-                    <label onclick="toggleVisibility('Menu3');"
-                        class="card-payment cursor-pointer fw-500 px-2 py-1 fz-10">
-                        <input type="radio" name="radioPayment" class="radio-payment" />
-                        <span class="radio-btn variasi px-2 py-1 fz-10">Indomaret</span>
-                    </label>
-                </div>
-            </div>
-            <hr class="my-3 py-0">
-            <div class="">
-                <div id="Menu1" style="display: none;">
-                    <label class="radioWrapper ps-3 row d-flex align-items-start py-3">
-                        <div class="col-12 pe-1 d-flex align-items-start gap-2">
-                            <div class="left">
-                                <img src="assets/img/bca.svg" alt="" class="iconPay">
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">Bank Mandiri </span>
+                                <span class="fz-9" style="width: 90%">Hanya menerima dari Bank Mandiri termasuk Bank Syariah Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="p" value="mandiri" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
-                            <div class="d-flex flex-column gap 2">
-                                <span class="fw-600 fz-12 mt-1">Bank BCA </span>
-                                <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BCA. Metode Pembayaran
-                                    Lebih
-                                    Mudah</span>
+                        </label>
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/bni.svg" alt="">
                             </div>
-                            <input type="radio" name="radio">
-                            <span class="checkmark position-absolute me-2"></span>
-                        </div>
-                    </label>
-                    <label class="radioWrapper ps-3 row d-flex align-items-start py-3">
-                        <div class="col-12 pe-1 d-flex align-items-start gap-2">
-                            <div class="left">
-                                <img src="assets/img/mandiri.svg" alt="" class="iconPay">
-                            </div>
-                            <div class="d-flex flex-column gap 2">
-                                <span class="fw-600 fz-12 mt-1">Bank Mandiri </span>
-                                <span class="fz-9" style="width: 90%">Hanya menerima dari Bank Mandiri termasuk Bank
-                                    Syariah
-                                    Metode Pembayaran Lebih Mudah</span>
-                            </div>
-                            <input type="radio" name="radio">
-                            <span class="checkmark position-absolute me-2"></span>
-                        </div>
-                    </label>
-                    <label class="radioWrapper ps-3 row d-flex align-items-start py-3">
-                        <div class="col-12 pe-1 d-flex align-items-start gap-2">
-                            <div class="left">
-                                <img src="assets/img/bni.svg" alt="" class="iconPay">
-                            </div>
-                            <div class="d-flex flex-column gap 2">
-                                <span class="fw-600 fz-12 mt-1">Bank BNI </span>
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">Bank BNI </span>
                                 <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BNI
                                     Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="p" value="bni" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
-                            <input type="radio" name="radio">
-                            <span class="checkmark position-absolute me-2"></span>
-                        </div>
-                    </label>
-                    <hr class="my-3 py-0">
-                </div>
-                <div id="Menu2" style="display: none;">
-                    <label class="radioWrapper ps-3 row d-flex align-items-start py-3">
-                        <div class="col-12 pe-1 d-flex align-items-start gap-2">
-                            <div class="left">
-                                <img src="assets/img/alfamart.svg" alt="" class="iconPay">
+                        </label>
+                    </div>
+                    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="border-top: 1px solid rgba(196, 196, 196, 0.2) !important;">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/alfamart.svg" alt="">
                             </div>
-                            <div class="d-flex flex-column gap 2">
-                                <span class="fw-600 fz-12 mt-1">Alfamart </span>
-                                <span class="fz-9" style="width: 90%">Hanya menerima dari Alfamart. Metode Pembayaran
-                                    Lebih
-                                    Mudah</span>
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">Alfamart </span>
+                                <span class="fz-10">Hanya menerima dari Alfamart. Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="p" value="alfamart" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
-                            <input type="radio" name="radio">
-                            <span class="checkmark position-absolute me-2"></span>
-                        </div>
-                    </label>
-                    <hr class="my-3 py-0">
-                </div>
-                <div id="Menu3" style="display: none;">
-                    <label class="radioWrapper ps-3 row d-flex align-items-start py-3">
-                        <div class="col-12 pe-1 d-flex align-items-start gap-2">
-                            <div class="left">
-                                <img src="assets/img/indomaret.svg" alt="" class="iconPay">
+                        </label>
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="border-top: 1px solid rgba(196, 196, 196, 0.2) !important;">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/indomaret.svg" alt="">
                             </div>
-                            <div class="d-flex flex-column gap 2">
-                                <span class="fw-600 fz-12 mt-1">Indomaret </span>
-                                <span class="fz-9" style="width: 90%">Hanya menerima dari Indomaret
-                                    Metode Pembayaran Lebih Mudah</span>
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">Indomaret</span>
+                                <span class="fz-10">Hanya menerima dari Indomaret. Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="p" value="indomaret" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
-                            <input type="radio" name="radio">
-                            <span class="checkmark position-absolute me-2"></span>
-                        </div>
-                    </label>
-                    <hr class="my-3 py-0">
+                        </label>
+                    </div>
+                    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="border-top: 1px solid rgba(196, 196, 196, 0.2) !important;">
+                            <div class="col-1 left me-3">
+                                <img src="assets/img/qris.svg" alt="" class="qris">
+                            </div>
+                            <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
+                                <span class="fw-600 fz-12">QRIS</span>
+                                <span class="fz-10">Hanya menerima dari QRIS. Metode Pembayaran Lebih Mudah</span>
+                                <input type="radio" name="pembayaran" id="p" value="QRISC" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <span class="checkmark position-absolute top-50 me-2"></span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div class="row d-flex align-items-center justify-content-end mb-2">
-                <div style="margin-right: -8rem;" class="col-2 text-start">
-                    <p class="fz-10">Subtotal untuk Produk</p>
+                <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end gap-4 mt-3">
+                    <div class="left gap-2 d-flex align-items-center">
+                        <span class="fz-12 abu">Subtotal untuk Produk</span>
+                    </div>
+                    <div class="right d-flex align-items-center ps-3">
+                        <span class="abu fz-12">Rp. <?= $total ?></span>
+                    </div>
                 </div>
-                <div class="col-2 text-end">
-                    <p class="fz-10">Rp20.000</p>
+                <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4">
+                    <div class="left gap-2 d-flex align-items-center">
+                        <span class="fz-12 abu">Subtotal Pengiriman</span>
+                    </div>
+                    <div class="right d-flex align-items-center ps-3">
+                        <span class="abu fz-12" id="pengiriman2">Rp. 0</span>
+                    </div>
                 </div>
-            </div>
-            <div class="row d-flex align-items-center justify-content-end mb-2">
-                <div style="margin-right: -8rem;" class="col-2 text-start">
-                    <p class="fz-10">Total ongkos kirim</p>
+                <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4" id="voucher">
+                    <div class="left gap-2 d-flex align-items-center">
+                        <span class="fz-12 abu">Potongan voucher</span>
+                    </div>
+                    <div class="right d-flex align-items-center ps-3">
+                        <span class="abu fz-12" id="pengiriman2">Rp. 0</span>
+                    </div>
                 </div>
-                <div class="col-2 text-end">
-                    <p class="fz-10">Rp20.000</p>
-                </div>
-            </div>
-            <div class="row d-flex align-items-center justify-content-end mb-2">
-                <div style="margin-right: -8rem;" class="col-2 text-start">
-                    <p class="fz-10">Biaya pelayanan</p>
-                </div>
-                <div class="col-2 text-end">
-                    <p class="fz-10">Rp1.000</p>
-                </div>
-            </div>
-            <div class="row d-flex align-items-center justify-content-end mb-2">
-                <div style="margin-right: -8rem;" class="col-2 text-start">
-                    <p class="fz-10">Total Pembayaran</p>
-                </div>
-                <div class="col-2 text-end">
-                    <p class="fz-16 orange fw-600">Rp41.000</p>
-                </div>
-            </div>
-            <hr class="mt-2 mb-3 py-0">
-            <div class="d-flex justify-content-end">
-                <button class="btn-blue fz-12 text-light px-3 py-2">Buat Pesanan</button>
+                <!-- <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4 mt-3">
+                    <div class="left gap-2 d-flex align-items-center">
+                        <span class="fz-11 fw-600">Total Pembayaran</span>
+                    </div>
+                    <div class="right d-flex align-items-center ps-3">
+                        <span class="orange fw-600 fz-11">Rp. <span  id="total"><?= $total ?></span></span>
+                    </div>
+                </div> -->
             </div>
         </div>
+        
+        
+        <!-- Navbar Bottom -->
+        <div class="navbarBottom bg-white container px-0 position-fixed bottom-0 start-0 end-0 m-auto mt-5">
+            <div class="d-flex justify-content-end gap-lg-3 align-items-center ps-3">
+                <div class="d-none d-lg-flex flex-column align-items-end">
+                    <span class="fz-12 fw-500">Total Pembayaran</span>
+                    <span class="fz-12 fw-600 orange">Rp. <span  id="total"><?= $total ?></span>
+                </div>
+                <form action="pengiriman.php" method="post">
+                <!-- Mobile -->
+                    <input type="text" name="idProduct" id="idProduct" value="<?= implode(',', $idProducts) ?>" hidden>
+                    <input type="text" name="idCart" id="idCart" value="<?= implode(',', $idCart) ?>" hidden>
+                    <input type="text" name="qty" id="qty" value="<?= $_POST['quantity'] ?>" hidden>
+                    <input type="text" name="amount" id="amount1" value="" hidden>
+                    <button type="submit" style="border: none;" class="m-0 d-block d-lg-none bg-blue text-light p-3 fz-12" onclick="document.getElementById('amount1').value = <?= $total ?>">
+                        Buat Pesanan
+                    </button>
+                </form>
+                <!-- Desktop -->
+                <form action="server/process/checkout.php" method="post">
+                <input type="text" name="amount" id="amount" value="" hidden required>
+                <input type="text" name="idCart" id="idCart" value="<?= implode(',', $idCart) ?>" hidden required>
+                <input type="text" name="idProduct" id="idProduct" value="<?= implode(',', $idProducts) ?>"hidden required>
+                <input type="text" name="idVariant" id="idVariant" value="<?= $_POST['idVariant'] ?>" required hidden>
+                <input type="text" name="courier" id="cou" value="" hidden required>
+                <input type="text" name="method" id="method" value="" hidden required>
+                <input type="text" name="qty" id="qty" value="<?= $_POST['quantity'] ?>" hidden required>
+                <button type="submit" style="border: none;" class="d-none d-lg-block right bg-blue text-light p-3">
+                    Buat Pesanan
+                </button>
+            </div>
+        </div>
+        </form>
     </div>
 
+    <!-- Foot -->
+    <?php include "components/foot.php"; ?>
     <script>
-    var divs = ["Menu1", "Menu2", "Menu3"];
-    var visibleDivId = null;
+        // Button Cart Increment Decrement
+        // const plus = document.querySelector(".plus"),
+        //     minus = document.querySelector(".minus"),
+        //     num = document.querySelector(".num");
+        // let a = 1;
+        // plus.addEventListener("click", () => {
+        //     a++;
+        //     a = (a < 10) ? a : a;
+        //     num.innerText = a;
+        // });
 
-    function toggleVisibility(divId) {
-        if (visibleDivId === divId) {
-            //visibleDivId = null;
-        } else {
-            visibleDivId = divId;
-        }
-        hideNonVisibleDivs();
-    }
+        // minus.addEventListener("click", () => {
+        //     if (a > 1) {
+        //         a--;
+        //         a = (a < 10) ? a : a;
+        //         num.innerText = a;
+        //     }
+        // });
 
-    function hideNonVisibleDivs() {
-        var i, divId, div;
-        for (i = 0; i < divs.length; i++) {
-            divId = divs[i];
-            div = document.getElementById(divId);
-            if (visibleDivId === divId) {
-                div.style.display = "block";
-            } else {
-                div.style.display = "none";
-            }
-        }
-    }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
+        $(document).ready(function() {
+            document.getElementById('amount1').value = <?= $total ?>;
+        })
+
     </script>
 </body>
 

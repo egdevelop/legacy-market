@@ -1,16 +1,13 @@
+<?php
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
+?>
 <!doctype html>
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css?<?php echo time(); ?>">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+     <?php include "components/head.php"; ?>
 
     <title>Member</title>
 </head>
@@ -18,63 +15,32 @@
 <body>
 
     <div class="body-wrapper">
-        <?php include "components/navbar.php" ?>
+        <!-- Mobile Navbar -->
+        <div class="w-100 position-fixed bg-white z-3 d-block d-sm-none py-4">
+            <div class="container">
+                <a onclick="history.back()" class="text-dark d-flex align-items-center gap-3">
+                    <i class="ri-arrow-left-s-line fz-14"></i>
+                    <span class="fz-12 fw-bold fz-14">Member</span>
+                </a>
+                <ul class="nav nav-pills mb-3 d-flex d-lg-none justify-content-center my-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fz-12 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Refferalku</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fz-12" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Memberku</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <?php include "partials/navbarProfil.php" ?>
 
         <!-- Flash Sale -->
-        <section style="margin-top: 7rem;" class="py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
+        <section class="mtProfil py-2 py-lg-4 px-0 px-lg-4 mt-profile mb-5">
             <div class="container">
                 <div class="row d-flex justify-content-between">
-                    <div class="col-2 left bg-white borad-10 p-4">
-                        <div class="d-flex gap-2">
-                            <div class="profile">
-                                <img src="<?= ($_SESSION['picture']) ?  $_SESSION['picture'] : "assets/img/profile.jpg" ?>" alt="" class="profileImg">
-                            </div>
-                            <div class="d-flex flex-column">
-                                <span class="fz-12 fw-bold"><?= ($_SESSION['name']) ?  $_SESSION['name'] : "Naufal" ?></span>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <span class="abu"><i class="ri-edit-2-fill"></i></span>
-                                    <span class="fz-10 fw-600 abu">Ubah profil</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="container-menu mt-4">
-                            <nav>
-                                <ul class="menu">
-                                    <li class="fz-12">
-                                        <a onclick="location.href = 'profilDetail.php';" class="cursor-pointer feat-btn activeMenu">
-                                            <span class="blue"><i class="ri-user-line"></i></span>
-                                            <span>Akun saya</span>
-                                        </a>
-                                        <ul class="feat-show show">
-                                            <li><a href="profilDetail.php">Profil</a></li>
-                                            <li><a href="alamat.php">Alamat</a></li>
-                                            <li><a href="ubah-sandi.php">Ubah sandi</a></li>
-                                            <li><a href="member.php" class="activeSubmenu">Member</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="fz-12">
-                                        <a href="pesanan-saya.php" class="mainMenu">
-                                            <span class="blue"><i class="ri-file-list-3-line"></i></span>
-                                            <span>Pesanan saya</span>
-                                        </a>
-                                    </li>
-                                    <li class="fz-12">
-                                        <a href="notifikasi.php" class="mainMenu">
-                                            <span class="blue"><i class="ri-notification-4-line"></i></span>
-                                            <span>Notifikasi</span>
-                                        </a>
-                                    </li>
-                                    <li class="fz-12">
-                                        <a href="voucher-akun.php" class="mainMenu">
-                                            <span class="blue"><i class="ri-coupon-2-line"></i></span>
-                                            <span>Voucher</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                    <div class="col-9 d-flex flex-column">
+                <?php include "partials/sidebarProfil.php" ?>
+                    <!-- Desktop -->
+                    <div class="col-12 col-lg-9 right bg-white borad-10 p-4 d-none d-lg-flex flex-column">
                         <div class="right bg-white borad-10 p-4">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="left">
@@ -101,31 +67,11 @@
                                                 Sekarang</a>
                                         </div>
                                     </div>
-
-                                    <!-- Member Active -->
-                                    <!-- <div class="cursor-pointer d-flex justify-content-between px-3 py-2 my-2 bg-blue">
-                                        <div class="left">
-                                            <span class="fz-12 text-light fw-600">2 Bulan</span>
-                                        </div>
-                                        <div class="right">
-                                            <span class="fz-12 text-light fw-600">Rp200.000</span>
-                                        </div>
-                                    </div>
-                                    <span class="fz-12 fw-600">Berakhir : 1 Bulan 23 Hari lagi</span>
-
-                                    <form class="d-flex mt-5 pt-5">
-                                        <input class="form-control me-2" type="text">
-                                        <span
-                                            class="fz-20 text-light bg-blue px-3 d-flex align-items-center justify-content-center">
-                                            <i class="ri-file-copy-fill"></i>
-                                        </span>
-                                    </form> -->
                                 </div>
                             </div>
                         </div>
                         <div class="right bg-white borad-10 p-4 mt-3">
                             <h6 class="fw-600">Paket Member</h6>
-                            <p class="fz-14 abu">Klik tombol daftar untuk menjadi member</p>
                             <div class="mt-2">
                                 <div class="d-flex flex-column">
                                     <div class="cursor-pointer d-flex justify-content-between px-3 py-2 my-2 bg-blue">
@@ -155,27 +101,202 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Member Active -->
-                        <!-- <div class="right bg-white borad-10 p-4 mt-3">
-                            <h6 class="fw-500">Teman yang telah diundang</h6>
-                            <hr class="my-3 py-0">
-                            <div class="content"></div>
-                        </div> -->
+                    <!-- Mobile -->
+                    <div class="col-12 col-lg-9 right bg-white borad-10 p-4 d-flex d-lg-none flex-column">
+                        <div class="right bg-white borad-10 p-lg-4">
+                            <div class="tab-content" id="pills-tabContent">
+                                <div class="tab-pane fade show active gap-3" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                    <div class="d-flex flex-column align-items-center gap-3">
+                                        <img src="assets/img/kado.png" alt="Gift" class="mt-5">
+                                        <span class="fz-14 fw-600 text-center">Daftar member dan dapatkan benefitnya</span>
+                                        <div class="d-flex gap-2 justify-content-between">
+                                            <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                                                <span class="fz-12 fw-600">1</span>
+                                                <img src="assets/img/iconList.png" alt="" class="iconList">
+                                                <span class="fz-10">Temanmu daftar member menggunakan link kamu</span>
+                                            </div>
+                                            <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                                                <span class="fz-12 fw-600">2</span>
+                                                <img src="assets/img/iconList.png" alt="" class="iconList">
+                                                <span class="fz-10">Temanmu membeli barang grosir di marketplace</span>
+                                            </div>
+                                            <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                                                <span class="fz-12 fw-600">3</span>
+                                                <img src="assets/img/iconList.png" alt="" class="iconList">
+                                                <span class="fz-10">Kamu akan mendapatkan benefit 5% dari pembelian</span>
+                                            </div>
+                                        </div>
+                                        <div class="refferal d-flex w-100 d-flex justify-content-center py-3 borad-10">
+                                            <div class="d-flex flex-column align-items-center gap-2">
+                                                <span class="fz-12">Link Refferal Saya</span>
+                                                <i class="blue ri-file-copy-line"></i>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-blue w-100 text-light fz-12 py-2">Bagikan Sekarang</button>
+                                        <span class="fz-12">Syarat & Ketentuan berlaku</span>
+                                        <?php include "partials/navBottom.php" ?>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                                    <div class="d-flex flex-column gap-3">
+                                        <!-- Member Non Aktif -->
+                                        <!-- <img src="assets/img/starBig.png" alt="Gift" class="mt-5">
+                                        <span class="fz-14 fw-600 text-center">Member - 2 Bulan</span>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <span class="fz-10">Beli Paket tahunan dan dapatkan</span>
+                                            <div class="badge bg-warning fz-10">Hemat 50%</div>
+                                        </div>
+                                        <div class="tab-content" id="pills-tabContent">
+                                            <div class="tab-pane fade show active" id="pills-one" role="tabpanel" aria-labelledby="pills-one-tab">
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <span class="fz-18 fw-600">Rp200.000,-</span>
+                                                    <span class="fz-12">per 2 bulan</span>
+                                                </div>
+                                            </div>
+                                        <div class="tab-pane fade" id="pills-two" role="tabpanel" aria-labelledby="pills-two-tab">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <span class="fz-18 fw-600">Rp500.000,-</span>
+                                                    <span class="fz-12">per 5 bulan</span>
+                                                </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="pills-three" role="tabpanel" aria-labelledby="pills-three-tab">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <span class="fz-18 fw-600">Rp1000.000,-</span>
+                                                    <span class="fz-12">per 1 tahun</span>
+                                                </div>
+                                        </div>
+                                        </div>
+                                        <ul class="nav nav-pills mb-3 d-flex d-lg-none justify-content-center my-3" id="pills-tab" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link fz-12 active" id="pills-one-tab" data-bs-toggle="pill" data-bs-target="#pills-one" type="button" role="tab" aria-controls="pills-one" aria-selected="true">2 bulan</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link fz-12" id="pills-two-tab" data-bs-toggle="pill" data-bs-target="#pills-two" type="button" role="tab" aria-controls="pills-two" aria-selected="false">5 bulan</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link fz-12" id="pills-three-tab" data-bs-toggle="pill" data-bs-target="#pills-three" type="button" role="tab" aria-controls="pills-three" aria-selected="false">1 tahun</button>
+                                            </li>
+                                        </ul> -->
+                                        <!-- End -->
+
+                                        <!-- Member Aktif -->
+                                            <img src="assets/img/starBig.png" alt="Gift" class="mt-5">
+                                        <span class="fz-14 fw-600 text-center">Member - 2 Bulan</span>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <div class="badge bg-primary">Aktif</div>
+                                        </div>
+                                        <div class="tab-content" id="pills-tabContent">
+                                            <div class="tab-pane fade show active" id="pills-one" role="tabpanel" aria-labelledby="pills-one-tab">
+                                                <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+                                                    <span class="fz-18 fw-600">120:24:20</span>
+                                                    <span class="fz-10">Waktu Berakhir Member Tersisa</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="my-3 d-flex justify-content-between mt-3">
+                                            <span class="fz-10 fw-600">Teman yang berhasil diundang</span>
+                                            <span class="fz-10">Bonus 5% yang didapat</span>
+                                        </div>
+                                        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-indicators">
+                                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                            </div>
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <div class="my-3 d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="assets/img/human.jpg" class="imgMember" alt="...">
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <span class="fz-11 fw-600">Falch12</span>
+                                                                <span class="fz-10">Diundang 09/20/22</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="right">
+                                                            <span class="fz-12 text-success">Rp.5000</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="my-3 d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="assets/img/human.jpg" class="imgMember" alt="...">
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <span class="fz-11 fw-600">Falch12</span>
+                                                                <span class="fz-10">Diundang 09/20/22</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="right">
+                                                            <span class="fz-12 text-success">Rp.5000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="carousel-item">
+                                                    <div class="my-3 d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="assets/img/human.jpg" class="imgMember" alt="...">
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <span class="fz-11 fw-600">Falch12</span>
+                                                                <span class="fz-10">Diundang 09/20/22</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="right">
+                                                            <span class="fz-12 text-success">Rp.5000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="carousel-item">
+                                                    <div class="my-3 d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <img src="assets/img/human.jpg" class="imgMember" alt="...">
+                                                            <div class="d-flex flex-column gap-2">
+                                                                <span class="fz-11 fw-600">Falch12</span>
+                                                                <span class="fz-10">Diundang 09/20/22</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="right">
+                                                            <span class="fz-12 text-success">Rp.5000</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
+                                            </div>
+                                        <hr>
+                                        <!-- End -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="fz-12 fw-600">Benefit Member</span>
+                                            <img src="assets/img/kadoSmall.png" alt="Icon Gift" class="kadoSmall">
+                                        </div>
+                                        <ul class="fz-12">
+                                            <li>Terbuka fitur pembelian Grosir</li>
+                                            <li>Dapatkan Akses pemberitahuan barang yang akan hadir</li>
+                                            <li>Dapatkan Promo Khusus Member</li>
+                                        </ul>
+                                        <div class="position-fixed w-100 d-block d-lg-none start-0 bottom-0 bg-blue py-3">
+                                            <a href="daftar.php" class="text-light d-flex justify-content-center px-3 mx-2">
+                                                Gabung Member Sekarang</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-
     </div>
 
-
-    <script src="assets/js/jquery-3.4.1.min.js"></script>
-    <script src="assets/js/menu.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-    </script>
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-    <script src="https://kit.fontawesome.com/a076d005399.js"></script>
+    <!-- Foot -->
+    <?php include "components/foot.php"; ?>
     <script>
         $('.feat-btn').click(function() {
             $('nav ul .feat-show').toggleClass('show');

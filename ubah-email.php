@@ -2,27 +2,18 @@
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css?<?php echo time(); ?>">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <?php include "components/head.php"; ?>
+    
     <title>Ubah Email</title>
 </head>
 
 <body>
 
     <div class="body-wrapper">
-        <?php include "components/navbar.php" ?>
+        <?php include "partials/navbar.php" ?>
 
         <!-- Flash Sale -->
-        <section style="margin-top: 7rem;" class="py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
+        <section class="mtProfil py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
             <div class="container">
                 <div class="row d-flex justify-content-between">
                     <div class="col-2 left bg-white borad-10 p-4">
@@ -120,13 +111,8 @@
     </section>
     </div>
 
-    <script src="assets/js/jquery-3.4.1.min.js"></script>
-    <script src="assets/js/menu.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-    </script>
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-    <script src="https://kit.fontawesome.com/a076d005399.js"></script>
+    <!-- Foot -->
+    <?php include "components/foot.php"; ?>
     <script>
     $('.feat-btn').click(function() {
         $('nav ul .feat-show').toggleClass('show');

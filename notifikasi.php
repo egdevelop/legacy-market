@@ -1,16 +1,13 @@
+<?php
+session_start();
+require $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
+$data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
+?>
 <!doctype html>
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css?<?php echo time(); ?>">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <?php include "components/head.php"; ?>
 
     <title>Notifikasi</title>
 </head>
@@ -18,23 +15,28 @@
 <body>
 
     <div class="body-wrapper">
-        <?php include "components/navbar.php" ?>
+        <!-- Mobile Navbar -->
+        <div class="w-100 position-fixed bg-white z-3 d-block d-sm-none py-4">
+            <div class="container">
+                <a onclick="history.back()" class="text-dark d-flex align-items-center gap-3">
+                    <i class="ri-arrow-left-s-line fz-14"></i>
+                    <span class="fz-12 fw-bold fz-14">Notifikasi</span>
+                </a>
+            </div>
+        </div>
+        <?php include "partials/navbarProfil.php" ?>
 
         <!-- Flash Sale -->
-        <section style="margin-top: 7rem;" class="py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
+        <section class="mtProfil py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
             <div class="container">
                 <div class="row d-flex justify-content-between">
-                    <div class="col-2 left bg-white borad-10 p-4">
+                    <div class="col-0 col-lg-2 left bg-white borad-10 p-4 d-none d-lg-block">
                         <div class="d-flex gap-2">
                             <div class="profile">
-                                <img src="<?= ($_SESSION['picture']) ?  $_SESSION['picture'] : "assets/img/profile.jpg" ?>" alt="" class="profileImg">
+                                <img src="<?= ($data['photo']) ?  $data['photo'] : "assets/img/profile.jpg" ?>" alt="" class="profileImg">
                             </div>
                             <div class="d-flex flex-column">
-                                <span class="fz-12 fw-bold"><?= ($_SESSION['name']) ?  $_SESSION['name'] : "Naufal" ?></span>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <span class="abu"><i class="ri-edit-2-fill"></i></span>
-                                    <span class="fz-10 fw-600 abu">Ubah profil</span>
-                                </div>
+                                <span class="fz-12 fw-bold"><?= ($data['name']) ?  $data['name'] : "Naufal" ?></span>
                             </div>
                         </div>
                         <div class="container-menu mt-4">
@@ -74,9 +76,9 @@
                             </nav>
                         </div>
                     </div>
-                    <div class="col-9 right d-flex flex-column">
-                        <div class="bg-white mt-3 borad-10 p-4">
-                            <div class="d-flex justify-content-between">
+                    <div class="col-12 col-lg-9 right bg-white borad-10 p-4 d-flex flex-column">
+                        <div class="bg-white mt-lg-3 borad-10 p-lg-4">
+                            <div class="d-none d-lg-flex justify-content-between">
                                 <div class="left">
                                     <span class="fz-13 fw-600">Notifikasi</span>
                                 </div>
@@ -87,11 +89,11 @@
                             </div>
                             <hr class="my-3 py-0">
                             <div class="d-flex align-items-center justify-content-between">
-                                <div class="left d-flex gap-2">
+                                <div class="d-flex gap-2">
                                     <img src="assets/img/products1.jpg" alt="" class="productsImg">
                                     <div class="d-flex flex-column">
                                         <span class="fz-12 fw-bold">Paket Di terima</span>
-                                        <span class="fz-12 my-1" style="width: 70%;">Jocoproduction - Topi Baseball
+                                        <span class="fz-12 my-1 titleNotif">Jocoproduction - Topi Baseball
                                             Anak
                                             Laki-laki & Perempuan
                                             Motif bordir Alfabeth
@@ -99,7 +101,7 @@
                                         <span class="fz-10 fw-500">Produk dipesan 23/04/2022</span>
                                     </div>
                                 </div>
-                                <div class="right">
+                                <div class="d-none d-lg-block">
                                     <button type="button" class="w-100 btnMember px-3 py-2 fz-11 fw-600 orange">Tampilkan
                                         Rincian Pesan</button>
                                 </div>
@@ -114,9 +116,11 @@
                 </div>
             </div>
         </section>
-
+        <?php include "partials/navBottom.php" ?>
     </div>
 
+    <!-- Foot -->
+    <?php include "components/foot.php" ?>
     <script>
         document.addEventListener("DOMContentLoaded", function(event) {
             var navCustom = document.querySelectorAll('.nav-link-custom');
@@ -150,10 +154,6 @@
         function windowScroll() {
             mainNav.classList.toggle("bg-blue", mainNav.scrollTop > 50 || document.documentElement.scrollTop > 50);
         }
-    </script>
-    <script src="assets/js/jquery-3.4.1.min.js"></script>
-    <script src="assets/js/menu.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
     </script>
 </body>
 

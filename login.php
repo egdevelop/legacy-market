@@ -1,8 +1,8 @@
 <?php
 session_start();
 require './server/Login/google-login.php';
-if($_SESSION['email']){
-    header("Location: ./");
+if(isset($_SESSION['userid'])) {
+    header('Location: /');
 }
 ?>
 
@@ -10,13 +10,8 @@ if($_SESSION['email']){
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style2.css?<?php echo time(); ?>">
+     <?php include "components/headMember.php"; ?>
+     
     <title>Login</title>
 </head>
 
@@ -51,10 +46,10 @@ if($_SESSION['email']){
                     <a href="<?= $client->createAuthUrl(); ?>" class="btn btnlogin py-2 px-3 f-16 fw-semibold text-decoration-none text-dark" style="height: 55px;">
                         <img src="assets/img/google.png" class="mx-1 py-1 pe-2" alt=""> Masuk Dengan Google
                     </a>
-
+                    <!-- >
                     <a href="#" class="btn btnlogin py-2 px-3 f-14 fw-semibold text-decoration-none text-dark mt-4" style="height: 55px;" onclick="FBLOGIN();">
                         <img src="assets/img/facebook.png" class="mx-2 py-1 mt-1 pe-2 " alt=""> Masuk Dengan Facebook
-                    </a>
+                    </a> -->
                 </div>
                 <p class="d-none d-md-block f-16 pt-4 w-60 mt-5 fw-semibold">FAQ:join member untuk dapatkan akses
                     pembelian lebih banyak</p>
@@ -74,9 +69,6 @@ if($_SESSION['email']){
                     <img src="assets/img/google.png" class="mx-2 " alt=""> Masuk Dengan Google
                 </button>
             </a>
-            <button class="btnmobile2 py-2  mt-2 mx-0 fw-semibold f-14 w-100" onclick="FBLOGIN();">
-                <img src="assets/img/facebook.png" class="mx-2 pe-2" alt=""> Masuk Dengan Facebook
-            </button>
 
             <p class="f-12 text-light text-center  mx-5 mt-4 fw-semibold">FAQ:join member untuk dapatkan akses pembelian
                 lebih banyak</p>
@@ -85,6 +77,8 @@ if($_SESSION['email']){
 
     </footer>
 
+    <!-- Foot -->
+    <?php include "components/foot.php"; ?>
     <!-- FB LOGIN -->
     <script>
         window.fbAsyncInit = function() {
@@ -119,19 +113,6 @@ if($_SESSION['email']){
             });
         }
     </script>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-
-    <!-- Optional JavaScript; choose one of the two! -->
-
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-    </script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-        -->
 </body>
 
 </html>

@@ -2,7 +2,7 @@
 $host = "127.0.0.1";
 $username = "egdev";
 $password = "@egdev";
-$db = "legacy-market";
+$db = "market";
 date_default_timezone_set("Asia/Jakarta");
 $tanggal = date("Y-m-d");
 $kemarin = date("Y-m-d", strtotime("yesterday"));

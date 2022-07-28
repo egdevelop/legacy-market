@@ -26,7 +26,9 @@ if($_GET['code']) {
     $google_account_info = $google_service->userinfo->get();
     $email = $google_account_info->email;
     $name = $google_account_info->name;
+    $gender = $google_account_info->gender;
     $picture = $google_account_info->picture;
+    $referal = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ"), 0, 6);
     
     $exist = mysqli_query($conn, "SELECT * FROM users WHERE email = '$email'");
     if (mysqli_num_rows($exist) === 1) {
@@ -36,11 +38,15 @@ if($_GET['code']) {
         $expiry = date("Y-m-d", strtotime("+1 month"));
         mysqli_query($conn, "INSERT INTO cookies (userid, token, expiry) VALUES ('$user[id]', '$token',DATE '$expiry')");
         if(mysqli_affected_rows($conn) === 1) {
+            if($user['password'] == null){
+                $_SESSION['create_password'] = "true";
+            }
             setcookie("cookie", $msg, strtotime("+1 month"), "/");
-            $_SESSION['email'] = $user['email'];
+            $_SESSION['userid'] = $user['id'];
+            $_SESSION['email'] = $email;
             $_SESSION['username'] = $user['username'];
-            $_SESSION['name'] = $user['name'];
-            $_SESSION['picture'] = $user['photo'];
+            $_SESSION['name'] = $name;
+            $_SESSION['picture'] = $picture;
             header('Location: ../../index.php');
             exit;
         } else {
@@ -49,8 +55,7 @@ if($_GET['code']) {
             echo $userid, $token, $expiry, $msg;
         }
     } else {
-        $username = "user" . substr(str_shuffle(MD5(microtime())), 0, 10);
-        $query = "INSERT INTO users (name, username, email, password, address, no_hp, role, photo) VALUES ('$name', '$username', '$email', null, null, null, 0, '$picture')";
+        $query = "INSERT INTO users (name, email, password, address, no_hp, ttl, role, photo,gender,referal) VALUES ('$name', '$email', null, null, null, null, 0, '$picture','$gender','$referal')";
         mysqli_query($conn, $query);
         if (mysqli_affected_rows($conn) > 0) {
             $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE email = '$email'"));
@@ -60,11 +65,13 @@ if($_GET['code']) {
             mysqli_query($conn, "INSERT INTO cookies (userid, token, expiry) VALUES ('$user[id]', '$token',DATE '$expiry')");
             if (mysqli_affected_rows($conn) === 1) {
                 setcookie("cookie", $msg, strtotime("+1 month"), "/");
+                $_SESSION['userid'] = $user['id'];
                 $_SESSION['email'] = $email;
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['name'] = $name;
                 $_SESSION['picture'] = $picture;
-                header('Location: ../../index.php');
+                $_SESSION['create_password'] = "true";
+                header('Location: ../../ubah-sandi.php');
                 exit;
             } else {
                 echo '<script>alert("Error: Could not create token.");</script>';

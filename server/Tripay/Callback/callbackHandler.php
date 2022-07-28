@@ -15,6 +15,12 @@ if($reference_type == 'JC'){
         if($status == 'PAID'){
             $sql = "UPDATE orders SET status = '1' , paid_at = '$datas[paid_at]' WHERE reference = '$reference'";
             $result = mysqli_query($conn, $sql);
+            $data = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM orders WHERE reference = '$reference'"));
+            $variant = explode(",", $data['id_variant']);
+            $jumlah = explode(",", $data['qty']);
+            for($i = 0 ; $i < count($variant); $i++){
+                $update = mysqli_query($conn, "UPDATE variants SET stock = stock - '$jumlah[$i]' WHERE id = '$variant[$i]'");
+            }
 
             //RESPONE 200
             if($result){
