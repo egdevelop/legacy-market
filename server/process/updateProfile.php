@@ -10,13 +10,11 @@ mysqli_query($conn, "UPDATE users SET name = '$name', gender = '$gender', ttl = 
 if (mysqli_affected_rows($conn) > 0) {
     echo "
     <script>
-    alert('Berhasil memperbaharui profil');
     window.location = '../../profilDetail.php';
     </script>";
 } else {
     echo "
     <script>
-    alert('Gagal memperbaharui profil');
     window.location = '../../profilDetail.php';
     </script>";
 }

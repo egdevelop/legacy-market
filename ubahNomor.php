@@ -1,6 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
+if(!isset($_SESSION['userid'])){
+    header('Location: login.php');
+}
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 if(isset($_POST['no_hp'])) {
     $no_hp = $_POST['no_hp'];
@@ -8,9 +11,6 @@ if(isset($_POST['no_hp'])) {
     if(mysqli_query($conn, $sql)){
         header("Location: ubahProfil.php");
     }
-}
-if(!isset($_SESSION['userid'])){
-    header('Location: login.php');
 }
 ?>
 
@@ -38,7 +38,7 @@ if(!isset($_SESSION['userid'])){
                 </div>
             </div>
         </div>
-        <?php include "partials/navbarProfil.php" ?>
+        <?php include "partials/navbarAkun.php" ?>
 
         <!-- Flash Sale -->
         <section class="mtProfil py-2 py-sm-4 px-0 px-sm-4 mb-5">
@@ -95,7 +95,7 @@ if(!isset($_SESSION['userid'])){
                         </div>
                     </div>
                     <form action="" method="post" id="form">
-                        <input name="no_hp" value="<?= ($data['no_hp'] == null) ? '' : $data['no_hp'] ?>" type="number" class="my-1 fz-12 border-0 bg-white col-12 d-block d-lg-none py-2"/>
+                        <input name="no_hp" value="<?= ($data['no_hp'] == null) ? '' : $data['no_hp'] ?>" type="number" class="tIndent my-1 fz-12 border-0 bg-white col-12 d-block d-lg-none py-2"/>
                     </form>
                 </div>
             </div>

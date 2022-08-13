@@ -24,7 +24,7 @@
                 </li>
                 <?php $url = explode('/', $_SERVER['REQUEST_URI'])[1]; ?>
                 <li class="fz-12">
-                    <a href="pesanan-saya.php" <?= ($url == "pesanan-saya.php") ? "class='activeMenu mainMenu'" : ''; ?>>
+                    <a href="pesanan-saya.php" <?= ($url == "pesanan-saya.php") ? "class='activeMenu'" : ''; ?>>
                         <span class="blue"><i class="ri-file-list-3-line"></i></span>
                         <span>Pesanan saya</span>
                     </a>
@@ -36,7 +36,7 @@
                     </a>
                 </li> -->
                 <li class="fz-12">
-                    <a href="voucher-akun.php" <?= ($url == "pesanan-saya.php") ? "class='activeMenu mainMenu'" : ''; ?>>
+                    <a href="voucher-akun.php" <?= ($url == "voucher-akun.php") ? "class='activeMenu'" : ''; ?>>
                         <span class="blue"><i class="ri-coupon-2-line"></i></span>
                         <span>Voucher</span>
                     </a>

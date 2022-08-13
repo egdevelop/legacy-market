@@ -2,9 +2,8 @@
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = " . $_SESSION['userid']));
-
 if(!$_SESSION['userid']) {
-    header('Location: /');
+    header('Location: /login.php');
 }
 ?>
 <!doctype html>
@@ -32,51 +31,7 @@ if(!$_SESSION['userid']) {
         </div>
 
         <!-- Desktop Navbar -->
-        <div class="bg-blue pt-2 pb-2 w-100 position-fixed z-3 d-none d-sm-block">
-            <div class="container">
-                <div class="d-flex justify-content-between">
-                    <div class="left d-flex gap-2 align-items-center">
-                        <span class="fz-12 text-light">Ikuti kami di</span>
-                        <span class="text-light"><i class="ri-instagram-fill"></i></span>
-                    </div>
-                    <div class="cursor-pointer kanan d-flex align-items-center gap-2 position-relative">
-                        <?php if (!isset($_SESSION['userid'])) : ?>
-                        <a href="daftar.php" class="fz-12 text-light">Daftar</a>
-                        <span class="fz-12 text-light">|</span>
-                        <a href="login.php" class="fz-12 text-light">Login</a>
-                        <?php else : ?>
-                            <?php $profil = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'")) ?>
-                        <div class="dropdown">
-                            <div class="dropbtn d-flex align-items-center me-2">
-                                <img src="<?= $profil['photo'] ?>" alt="" class="imgSmall">
-                                <span class="fz-12 text-light ms-2"><?= $profil['name'] ?></span>
-                            </div>
-                            <div class="dropdown-content">
-                                <a href="profilDetail.php" class="listProfile w-100 fz-12 m-auto">
-                                    Akun saya
-                                </a>
-                                <a href="pesanan-saya.php" class="listProfile w-100 fz-12 m-auto">
-                                    Pesanan saya
-                                </a>
-                                <a href="server/Login/logout.php" class="fz-12 m-auto listProfile w-100">
-                                    Logout
-                                </a>
-                                <!-- <div class="panah"></div> -->
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <form class="mt-2 d-flex gap-5 align-items-center justify-content-center nosubmit">
-                    <a href="index.php">
-                        <img src="assets/img/logo.svg" alt="logo" class="logo">
-                    </a>
-                    <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
-                    <a href="keranjang.php" class="ms-3 text-light iconNavbar z-1"><i class="ri-shopping-cart-line"></i></a>
-                    <a href="chat.php" class="ms-3 text-light iconNavbar z-1"><i class="me-3 ri-customer-service-2-line"></i></a>
-                </form>
-            </div>
-        </div>
+        <?php include "partials/navbarProfil.php" ?>
 
         <!-- Chat Admin -->
         <div class="mt-2 mt-lg-4 mb-5 pt-1">
@@ -93,7 +48,7 @@ if(!$_SESSION['userid']) {
                     </main>
 
                     <form class="msger-inputarea">
-                        <input type="text" class="msger-input" placeholder="Enter your message...">
+                        <input type="text" class="msger-input" placeholder="Enter your message..." autofocus>
                         <button type="submit" class="msger-send-btn">Send</button>
                     </form>
                 </section>
@@ -109,7 +64,7 @@ if(!$_SESSION['userid']) {
         const msgerInput = get(".msger-input");
         const msgerChat = get(".msger-chat");
 
-        const PERSON_NAME = "<?= $data['name'] ?>";
+        const PERSON_ID = "<?= $data['id'] ?>";
         const PERSON_IMG = "<?= $data['photo'] ?>";
         const PERSON_ROLE = "<?= $data['role'] ?>";
         const scrollValue = 0;
@@ -117,7 +72,7 @@ if(!$_SESSION['userid']) {
         var currentPosition = $('#chat-field').scrollTop();
         var lastPosition = msgerChat.scrollTop;
 
-        var to = <?= (isset($_GET['to'])) ? $_GET['to'] : "false"; ?>;
+        var to = 0;
 
         msgerForm.addEventListener("submit", event => {
             event.preventDefault();
@@ -125,11 +80,7 @@ if(!$_SESSION['userid']) {
             const msgText = msgerInput.value;
             if (!msgText) return;
 
-            if(PERSON_ROLE != 1) {
-                appendMessage(PERSON_NAME, 0, msgText);
-            } else {
-                appendMessage("Admin", to, msgText);
-            }
+            appendMessage(PERSON_ID, 0, msgText);
             msgerInput.value = "";
 
         });
@@ -141,12 +92,12 @@ if(!$_SESSION['userid']) {
             }
         });
 
-        function appendMessage(name, to, text) {
+        function appendMessage(from, to, text) {
             $.ajax({
                 url: "server/ajax/insertChat.php",
                 type: "POST",
                 data: {
-                    name: name,
+                    from: from,
                     to: to,
                     text: text
                 },
@@ -159,16 +110,11 @@ if(!$_SESSION['userid']) {
 
         // loadMessages();
         function loadMessages() {
-            if(PERSON_ROLE != 1) {
-                var id = "<?= $_SESSION['userid'] ?>";
-            } else {
-                var id = 0;
-            }
             $.ajax({
                 url: "server/ajax/loadChat.php",
                 type: "POST",
                 data: {
-                    id: id,
+                    id: PERSON_ID,
                     to: to
                 },
                 success: function(response) {

@@ -1,7 +1,10 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
-$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 session_start();
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
+$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 $a = new rajaongkir();
 $kota = $a->get_city();
 $kota_array = json_decode($kota, true);
@@ -112,11 +115,23 @@ if(!isset($_SESSION['userid'])){
                                             }
                                         ?>
                                 </div>
-                                <div class="d-flex justify-content-end">
-                                    <a data-bs-toggle="modal" data-bs-target="#ubahAlamat" class="fz-12 text-dark d-block d-lg-none">Ubah</a>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <?php
+                                            if($r['isPrimary'] != "1"){
+                                        ?>
+                                    <div class="d-block d-lg-none">
+                                        <a href="server/process/changePrimary.php?id=<?= $r['id'] ?>" class="fz-12 btn btnAlamat">Atur sebagai utama</a>
+                                    </div>
+                                    <?php
+                                        }
+                                    ?>
+                                    <div class="d-flex justify-content-end">
+                                        <a href="javascript:void(0)" data-id="<?= $r['id'] ?>" data-bs-toggle="modal" data-bs-target="#ubahAlamat" class="fz-12 text-dark d-block d-lg-none ubah">Ubah</a>
+                                    </div>
                                 </div>
                             </div>
-                        <?php } ?>
+                            <hr>
+                            <?php } ?>
                     </div>
                 </div>
                 <a data-bs-toggle="modal" data-bs-target="#tambahAlamat" class="text-dark bg-white col-12 d-block d-lg-none mt-3 py-2 d-flex justify-content-between align-items-center">
@@ -128,7 +143,7 @@ if(!isset($_SESSION['userid'])){
 
         <!-- Modal Ubah Alamat -->
         <div class="modal fade" id="ubahAlamat" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-dialog modal-dialog-scrollable">
                 <form action="server/process/editAddress.php" method="post">
                 <div class="modal-content">
                     <div class="modal-header" style="border:none">
@@ -137,11 +152,10 @@ if(!isset($_SESSION['userid'])){
                         <span class="blue fz-18"><i class="ri-map-pin-fill"></i></span>
                     </div>
                     <div class="modal-body ajaxr">
-                        
+                        <img src="assets/img/loader.gif" alt="loader gif" class="text-center d-flex justify-content-center m-auto">
                     </div>
                     <div class="modal-footer" style="border:none">
-                        <button type="button" class="btn fz-13" data-bs-dismiss="modal">Nanti
-                            saja</button>
+                        <button type="button" class="btn fz-13" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="text-light btn btn-blue px-3 py-2 fz-13">Konfirmasi</button>
                     </div>
                 </div>
@@ -226,6 +240,7 @@ if(!isset($_SESSION['userid'])){
     </form>
     </div>
     
+    <?php include 'partials/navBottom.php'; ?>
     <!-- Foot -->
     <?php include 'components/foot.php'; ?>
     <script>

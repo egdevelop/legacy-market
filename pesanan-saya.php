@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 $query = mysqli_query($conn, "SELECT * FROM orders WHERE id_user = '$_SESSION[userid]' ORDER BY date_order DESC");
 $status0 = false;
@@ -60,16 +63,25 @@ if(!isset($_SESSION['userid'])){
 <body>
 
     <div class="body-wrapper">
+        <!-- Mobile Navbar -->
+        <div class="w-100 position-fixed bg-white z-3 d-block d-lg-none py-4">
+            <div class="container">
+                <a onclick="history.back()" class="text-dark d-flex align-items-center gap-3">
+                    <i class="ri-arrow-left-s-line fz-14"></i>
+                    <span class="fz-12 fw-bold fz-14">Pesanan Saya</span>
+                </a>
+            </div>
+        </div>
         <?php include "partials/navbarAkun.php" ?>
 
-        <!-- Flash Sale -->
+        <!-- Pesanan Saya -->
         <section class="py-2 py-sm-4 px-0 px-sm-4 mtProfil mb-5">
             <div class="container">
                 <div class="row d-flex justify-content-between">
                     <?php include "partials/sidebar2.php" ?>
                     <div class="col-12 col-lg-9 right bg-white p-4">
                         <div class="bg-white">
-                            <ul onclick="myFunction(event)" id='nav-tab' class="nav d-flex flex-nowrap justify-content-start justify-content-lg-between gap-2 gap-lg-3 overflowPesanan" role="tablist">
+                            <ul id='nav-tab' class="nav d-flex flex-nowrap justify-content-start justify-content-lg-between gap-2 gap-lg-3 overflowPesanan" role="tablist">
                                 <li class="nav-item fz-14 fw-600 px-0 px-lg-3" role="presentation">
                                     <button class="nav-link-custom activePesanan" id="act Semua" data-bs-toggle="tab" data-bs-target="#Semua" type="button" role="tab" aria-controls="Semua" aria-selected="true">Semua</button>
                                 </li>
@@ -156,17 +168,17 @@ if(!isset($_SESSION['userid'])){
                                         <div class="left">
                                             <span class="fz-10 fw-500">Produk dipesan <?= $o['date_order'] ?></span>
                                         </div>
-                                        <div class="right mt-2">
+                                        <div class="d-flex flex-column flex-lg-row mt-2 gap-2 text-center">
                                         <?php if($o['status'] == 3) { ?>
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light" onclick="window.location = 'penilaian.php?id=' + <?= $o['id'] ?>">Beri
+                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light" onclick="window.location = 'beri-penilaian.php?id=' + <?= $o['id'] ?>">Beri
                                                 Penilaian</button>
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light ms-2" onclick="window.location = 'index.php'">Beli
+                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light " onclick="window.location = 'index.php'">Beli
                                                 Lagi</button>
                                         <?php } elseif($o['status'] == 2) { ?>
                                             <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light selesai"  onclick="selesaiOrder('<?= $o['id'] ?>')" id="selesai">Konfirmasi Selesai</button>
                                         <?php } elseif($o['status'] == 0) { ?>
                                             <button class="btn-danger border-0 borad-7 px-3 fz-12 py-2 text-light batal"  onclick="batalOrder('<?= $o['id'] ?>')" id="batal">Batalkan Pesanan</button>
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light ms-2">Lihat Kode Pembayaran</button>
+                                            <a href="https://tripay.co.id/checkout/<?= $o['third_ref'] ?>" class="btn-blue text-center borad-7 px-3 fz-12 py-2 text-light ">Lanjutkan Pembayaran</a>
                                         <?php } ?>
                                         </div>
                                     </div> 
@@ -195,7 +207,7 @@ if(!isset($_SESSION['userid'])){
                                             <!-- <span class="fz-13 fw-600">Eceran</span> -->
                                         </div>
                                         <div class="right">
-                                            <span class="fz-12 orange">Belum Bayar</span>
+                                            <span class="fz-12 orange">Menunggu Pembayaran</span>
                                         </div>
                                     </div>
                                     <hr class="my-3 py-0">
@@ -228,16 +240,14 @@ if(!isset($_SESSION['userid'])){
                                         <div class="left">
                                             <span class="fz-10 fw-500">Produk dipesan <?= $s0['date_order'] ?></span>
                                         </div>
-                                        <div class="right mt-2">
-                                            <button class="btn-danger border-0 borad-7 px-3 fz-12 py-2 text-light batal" id="batal" onclick="batalOrder('<?= $s0['id'] ?>')">Batalkan Pesanan</button>
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light ms-2">Lihat Kode Pembayaran</button>
+                                        <div class="d-flex flex-column flex-lg-row mt-2 gap-2 text-center">
+                                            <button class="w-100 btn-danger border-0 borad-7 px-3 fz-12 py-2 text-light batal" id="batal" onclick="batalOrder('<?= $s0['id'] ?>')">Batalkan Pesanan</button>
+                                            <a href="https://tripay.co.id/checkout/<?= $s0['third_ref'] ?>" class="w-100 btn-blue borad-7 px-3 fz-12 py-2 text-light ">Lanjutkan pembayaran</a>
                                         </div>
                                     </div> 
                                 </div>
                                 <?php
-                                    }} else {
-                                        echo $kosong0;
-                                    }
+                                    }}
                                 ?>
                             </div>
                             <div class="tab-pane fade" id="Dikirim" role="tabpanel" aria-labelledby="Dikirim">
@@ -293,15 +303,13 @@ if(!isset($_SESSION['userid'])){
                                         <div class="left">
                                             <span class="fz-10 fw-500">Produk dipesan <?= $s2['date_order'] ?></span>
                                         </div>
-                                        <div class="right mt-2">
+                                        <div class="d-flex flex-column flex-lg-row mt-2 gap-2 text-center">
                                         <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light selesai" id="selesai" onclick="selesaiOrder('<?= $s2['id'] ?>')">Konfirmasi Selesai</button>
                                         </div>
                                     </div> 
                                 </div>
                                 <?php
-                                    }} else {
-                                        echo $kosong2;
-                                    }
+                                    }}
                                 ?>
                             </div>
                             <div class="tab-pane fade" id="Selesai" role="tabpanel" aria-labelledby="Selesai">
@@ -357,18 +365,16 @@ if(!isset($_SESSION['userid'])){
                                         <div class="left">
                                             <span class="fz-10 fw-500">Produk dipesan <?= $s3['date_order'] ?></span>
                                         </div>
-                                        <div class="right mt-2">
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light" onclick="window.location = 'penilaian.php?id=' + <?= $o['id'] ?>">Beri
+                                        <div class="d-flex flex-column flex-lg-row mt-2 gap-2 text-center">
+                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light" onclick="window.location = 'beri-penilaian.php?id=' + <?= $o['id'] ?>">Beri
                                                 Penilaian</button>
-                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light ms-2" onclick="window.location = 'index.php'">Beli
+                                            <button class="btn-blue borad-7 px-3 fz-12 py-2 text-light " onclick="window.location = 'index.php'">Beli
                                                 Lagi</button>
                                         </div>
                                     </div> 
                                 </div>
                                 <?php
-                                    }} else {
-                                        echo $kosong3;
-                                    }
+                                    }}
                                 ?>
                             </div>
                             <div class="tab-pane fade" id="Dibatalkan" role="tabpanel" aria-labelledby="Dibatalkan">
@@ -424,15 +430,13 @@ if(!isset($_SESSION['userid'])){
                                         <div class="left">
                                             <span class="fz-10 fw-500">Produk dipesan <?= $s4['date_order'] ?></span>
                                         </div>
-                                        <div class="right mt-2">
+                                        <div class="d-flex flex-column flex-lg-row mt-2 gap-2 text-center">
                                             
                                         </div>
                                     </div> 
                                 </div>
                                 <?php
                                         }
-                                    } else {
-                                        echo $kosong4;
                                     }
                                 ?>
                             </div>
@@ -457,7 +461,6 @@ if(!isset($_SESSION['userid'])){
                 },
                 success: function(response) {
                     if(response == 'success') {
-                        alert('Selesai');
                         location.reload();
                     }
                 }
@@ -474,7 +477,6 @@ if(!isset($_SESSION['userid'])){
                 },
                 success: function(response) {
                     if(response == 'success') {
-                        alert('Batal');
                         location.reload();
                     }
                 }
@@ -489,7 +491,6 @@ if(!isset($_SESSION['userid'])){
                 navCustom.forEach(function(el, key) {
 
                     el.addEventListener('click', function() {
-                        console.log(key);
 
                         el.classList.toggle("activePesanan");
 
@@ -497,7 +498,6 @@ if(!isset($_SESSION['userid'])){
                             if (key !== els) {
                                 ell.classList.remove('activePesanan');
                             }
-                            console.log(els);
                         });
                     });
                 });

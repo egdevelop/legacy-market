@@ -1,3 +1,16 @@
+<?php
+include "server/config/db.php";
+include "server/config/functions.php";
+if(isset($_GET['tripay_status'])){
+    if($_GET['tripay_status'] == 'UNPAID'){
+        header("Location: pesanan-saya.php");
+    }
+}
+
+
+$data = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM orders WHERE reference = '$_GET[tripay_merchant_ref]'"));
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -38,39 +51,21 @@
                             <div class="d-flex justify-content-center align-items-center">
                                     <div class="d-flex align-items-center gap-2">
                                         <h5>Rp.</h5>
-                                        <h2>5.000.000</h2>
+                                        <h2><?= rupiahFormat($data['amount']) ?></h2>
                                     </div>
                             </div>
                         </div>
                         <div class="row gap-2 d-flex justify-content-center">
-                            <span class="fz-12 text-center">Waktu Selesai: 28-07-2022 15:00</span>
+                            <span class="fz-12 text-center">Waktu Selesai: <?= date('Y-m-d h:m' , $data['paid_at']) ?></span>
                         </div>
                     </div>
                     <div class="col-12 col-lg-9 bg-white py-3 mt-3">
                         <a href="pesanan-saya.php" class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="text-dark fz-12 fw-600">Ke<span> 
-                            </div>                     
-                            <div class="right">
-                                <span class="text-dark fz-12 fw-600">Joco<span> 
-                            </div>
-                        </a>
-                        <hr class="my-2 py-0">
-                        <a href="pesanan-saya.php" class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-dark fz-12 fw-600">Nama Pengakuisisi<span> 
-                            </div>                     
-                            <div class="right">
-                                <span class="text-dark fz-12 fw-600">JocoPay<span> 
-                            </div>
-                        </a>
-                        <hr class="my-2 py-0">
-                        <a href="pesanan-saya.php" class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
                                 <span class="text-dark fz-12 fw-600">Metode Pembayaran<span> 
                             </div>                     
                             <div class="right">
-                                <span class="text-dark fz-12 fw-600">BCA<span> 
+                                <span class="text-dark fz-12 fw-600"><?= $data['method'] ?><span> 
                             </div>
                         </a>
                         <hr class="my-2 py-0">
@@ -79,7 +74,7 @@
                                 <span class="text-dark fz-12 fw-600">No. Transaksi<span> 
                             </div>                     
                             <div class="right">
-                                <span class="text-dark fz-12 fw-600">102920329390<span> 
+                                <span class="text-dark fz-12 fw-600"><?= $data['reference'] ?><span> 
                             </div>
                         </a>
                     </div>

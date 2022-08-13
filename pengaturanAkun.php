@@ -1,10 +1,10 @@
 <?php
 session_start();
 require $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
-$data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 if(!isset($_SESSION['userid'])){
     header('Location: login.php');
 }
+$data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 ?>
 <!doctype html>
 <html lang="en">

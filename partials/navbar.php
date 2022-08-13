@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if(isset($_SESSION['userid'])){
     $cart = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM carts WHERE id_user = '$_SESSION[userid]'"));
 }else{
-    $cart = 0;
+    $cart = "";
 }
 ?>
 <!-- Mobile Navbar -->
@@ -37,8 +37,6 @@ if(isset($_SESSION['userid'])){
             </div>
             <div class="cursor-pointer kanan d-flex align-items-center gap-2 position-relative">
                 <?php if (!isset($_SESSION['userid'])) : ?>
-                <a href="daftar.php" class="fz-12 text-light">Daftar</a>
-                <span class="fz-12 text-light">|</span>
                 <a href="login.php" class="fz-12 text-light">Login</a>
                 <?php else : ?>
                     <?php $profil = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'")) ?>
@@ -63,7 +61,7 @@ if(isset($_SESSION['userid'])){
                 <?php endif; ?>
             </div>
         </div>
-        <form class="mt-2 d-flex gap-5 align-items-center justify-content-center nosubmit" action="search.php" method="get">
+        <form class="mt-2 d-flex gap-5 align-items-center justify-content-center nosubmit" autocomplete="off" action="search.php" method="get">
             <a href="index.php">
                 <img src="assets/img/logo.svg" alt="Logo" class="logo">
             </a>

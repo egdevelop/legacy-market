@@ -47,6 +47,7 @@ if($_GET['code']) {
             $_SESSION['username'] = $user['username'];
             $_SESSION['name'] = $name;
             $_SESSION['picture'] = $picture;
+            $_SESSION['role'] = $user['role'];
             header('Location: ../../index.php');
             exit;
         } else {
@@ -70,8 +71,8 @@ if($_GET['code']) {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['name'] = $name;
                 $_SESSION['picture'] = $picture;
-                $_SESSION['create_password'] = "true";
-                header('Location: ../../ubah-sandi.php');
+                $_SESSION['role'] = $user['role'];
+                header('Location: ../../index.php');
                 exit;
             } else {
                 echo '<script>alert("Error: Could not create token.");</script>';

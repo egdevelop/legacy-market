@@ -5,11 +5,26 @@ if(!isset($_SESSION['userid'])){
     header('Location: login.php');
     exit();
 }
-if($_POST['idCart'] == ''){
-    header('Location: keranjang.php');
-    exit();
+if(!isset($_SESSION['idVariant'])) {
+    if(!$_POST){
+        header('Location: keranjang.php');
+        exit();
+    }
 }
-$idCart = explode(',', $_POST['idCart']);
+    
+if($_SESSION['idVariant']) {
+    $idVariant = $_SESSION['idVariant'];
+} else {
+    $idVariant = explode(",", $_POST['idVariant']);
+    array_shift($idVariant);
+    $idVariant = implode(",", $idVariant);
+}
+    
+$idCart = ($_SESSION['idCart']) ? $_SESSION['idCart'] : $_POST['idCart'];
+if(isset($_SESSION['idVariant'])) {
+    $type = 'member';
+}
+$idCart = explode(',', $idCart);
 $idCart = array_filter($idCart);
 $ccc = 0;
 foreach($idCart as $id){
@@ -17,6 +32,7 @@ foreach($idCart as $id){
     $row = mysqli_fetch_assoc($query);
     $data[$ccc] = getProductByVariant($row['id_variant']);
     $data[$ccc]['quantity'] = $row['total'];
+    $quantity .= ',' . $row['total'];
     $ccc++;
 }
 
@@ -25,7 +41,7 @@ while($voucher = mysqli_fetch_assoc($vou)){
     $vouchers[] = $voucher;
 }
 
-$addres = mysqli_query($conn, "SELECT * FROM address WHERE user_id = '$_SESSION[userid]'");
+$addres = mysqli_query($conn, "SELECT * FROM address WHERE user_id = '$_SESSION[userid]' AND isPrimary = 1");
 $address = mysqli_fetch_assoc($addres);
 
 $costs = getCost($address['city_id'], 151, 1000);
@@ -58,32 +74,35 @@ $costs = getCost($address['city_id'], 151, 1000);
         <div class="bg-blue w-100 position-fixed z-3 d-none d-md-block">
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between py-3">
-                    <div class="left">
-                        <span class="fz-12 text-light">Checkout</span>
-                    </div>
+                     <a onclick="history.back()" class="d-flex align-items-center cursor-pointer">
+                        <i class="ri-arrow-left-s-line text-light"></i>
+                        <span class="fz-12 fw-bold text-light">Checkout</span>
+                    </a>
                     <div class="right">
-                        <form class="d-flex gap-3 align-items-center justify-content-center nosubmit">
-                            <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
-                        </form>
+                        
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Alamat -->
-        <div class="container bg-white py-4  mt-keranjang">
+        <div class="container bg-white py-4  mt-keranjang" >
             <div class="container">
                 <div class="row">
                     <div class="col-10 d-flex align-items-center gap-2">
                         <i class="ri-map-pin-line blue"></i>
-                        <span class="fw-600 fz-12">Alamat Pengiriman</span>
+                        <span class="fw-600 fz-12">Alamat Pengiriman (Alamat Utama)</span>
                     </div>
                     <div class="col-2">
                         <a href="alamat.php" class="fz-12 blue">Ubah</a>
                     </div>
                 </div>
-                <div class="fz-12 mt-3"><?= $address['name'] ?> <?= $address['no'] ?></div>
-                <div class="fz-12 mt-2"><?= $address['detail'] ?>, <?= $address['city'] ?> - <?= $address['district'] ?>, <?= $address['province'] ?>, ID <?= $address['code'] ?>
+                <?php if(count($address) > 0) : ?>
+                    <div class="fz-12 mt-3"><?= $address['name'] ?> <?= $address['no'] ?></div>
+                    <div class="fz-12 mt-2"><?= $address['detail'] ?>, <?= $address['city'] ?> - <?= $address['district'] ?>, <?= $address['province'] ?>, ID <?= $address['code'] ?>
+                <?php else : ?>
+                    <div class="fz-12 mt-3">Tidak ada alamat utama sebagai alamat pengiriman. <a href="alamat.php">Atur disini</a></div>
+                <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -105,7 +124,14 @@ $costs = getCost($address['city_id'], 151, 1000);
                         <span class="fz-12">Subtotal</span>
                     </div>
                 </div>
-                <?php foreach($data as $row){ ?>
+                <?php 
+                foreach($data as $row){
+                if($_SESSION['role'] == 3) {
+                    $price = whichPrice($row['grosir'], $row['price'], $row['quantity']);
+                } else {
+                    $price = $row['price'];
+                } 
+                ?>
                 <div class="row">
                     <div class="col-12 col-lg-6">
                         <div class="d-flex align-items-end justify-content-between gap-2 mt-2">
@@ -113,31 +139,31 @@ $costs = getCost($address['city_id'], 151, 1000);
                                 <img src="<?= $row['photo'] ?>" alt="" class="varian">
                                 <div class="d-flex flex-column">
                                     <span class="fw-600 fz-12"><?= $row['name'] ?></span>
-                                    <span class="fz-12 fw-600 orange d-block d-lg-none" style="padding-bottom: 0px;">Rp. <?= $row['price'] ?></span>
-                                    <span class="fz-12 fw-600 orange"><br>Eceran</span>
-                                    <span class="fz-12 fw-600 d-none d-lg-block">Variasi : M - Coklat</span>
+                                    <span class="fz-12 fw-600 orange d-block d-lg-none" style="padding-bottom: 0px;">Rp. <?= $price ?></span>
+                                    <!-- <span class="fz-12 fw-600 orange"><br>Eceran</span> -->
+                                    <span class="fz-12 fw-600 d-none d-lg-block">Variasi : <?= $row['variantName'] ?></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-2 d-none d-lg-block">
-                        <span class="fz-12 fw-600 orange">Rp. <?= $row['price'] ?></span>
+                        <span class="fz-12 fw-600 orange">Rp. <?= $price ?></span>
                     </div>
                     <div class="col-2 d-none d-lg-block">
                         <span class="fz-12">x<?= $row['quantity'] ?></span>
                     </div>
                     <div class="col-2 d-none d-lg-block">
-                        <span class="fz-12 fw-600 orange">Rp. <?= $row['price'] * $row['quantity'] ?></span>
+                        <span class="fz-12 fw-600 orange">Rp. <?= $price * $row['quantity'] ?></span>
                     </div>
                 </div>
                 <?php 
-                $total = $total + ($row['price'] * $row['quantity']);
+                $total = $total + ($price * $row['quantity']);
                 $qty[] = $row['quantity'];
                 $idProducts[] = $row['id_product'];
                 } ?>
             </div>
         </div>
-
+        <?php if($idProducts[0] != '17') : ?>
         <!-- Opsi Pengiriman -->
         <div class="container bg-white py-4 border-top-custom d-none d-lg-block">
             <div class="container">
@@ -149,17 +175,17 @@ $costs = getCost($address['city_id'], 151, 1000);
                     <!-- mobile -->
                     <div class="d-flex d-lg-none flex-column mt-2">
                             <span class="fz-12">Reguler</span>
-                            <span class="fz-11 abu">Estimasi sampai 10 - 14 Apr</span>
+                            <span class="fz-11 abu"><?= $costs[1]['name'] ?></span>
                     </div>
                     <!-- Desktop -->
                     <div class="col-4 d-none d-lg-block">
                         <div class="d-flex flex-column">
                             <span class="fz-12">Reguler</span>
-                            <span class="fz-11 abu">Estimasi sampai 10 - 14 Apr</span>
+                            <span class="fz-11 abu">E<?= $costs[1]['name'] ?></span>
                         </div>
                     </div>
                     <div class="col-2 d-none d-lg-block">
-                        <span class="fz-12 orange" id="pengiriman">Rp. <?= $costs[1]['harga'] ?></span>
+                        <span class="fz-12 orange" id="pengiriman">Rp. <?php echo $costs[1]['harga']; $hrg = $costs[1]['harga']; $namacou = $costs[1]['name'] ?></span>
                     </div>
                     <div class="col-2 d-none d-lg-block">
                         <a href="#" data-bs-toggle="modal" data-bs-target="#opsiPengiriman" class="fz-12 blue">Ubah</a>
@@ -182,7 +208,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                                             </div>
                                         </button>
                                     </p>
-                                    <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+                                    <div id="flush-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
                                         <div class="accordion-body mt-1">
                                             <?php $asd = 0; 
                                                 foreach($costs as $c) : ?>
@@ -192,7 +218,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                                                     <span class="fz-9 orange" style="width: 90%">Rp. <?= $c['harga'] ?></span>
                                                     <input type="radio" name="radio" <?= ($asd == 0) ? "checked" : "" ?> onclick="
                                                     document.getElementById('pengiriman').innerText = 'Rp. <?= $c['harga'] ?>';
-                                                    document.getElementById('pengiriman2').innerText = 'Rp. <?= $c['harga'] ?>';
+                                                    document.getElementById('pengiriman2').innerText = '<?= $c['harga'] ?>';
                                                     document.getElementById('total').innerText = '<?php $all = $total + $c['harga']; echo $all ?>';
                                                     document.getElementById('cou').value = '<?= $c['name'] ?>';
                                                     document.getElementById('amount').value = '<?php $all = $total + $c['harga']; echo $all ?>';">
@@ -255,7 +281,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                     </div>
                     <!-- Desktop -->
                     <a href="#" data-bs-toggle="modal" data-bs-target="#gantiVoucher" class="col-4 col-lg-2 blue d-flex align-items-center">
-                        <span class="blue fz-11">Ganti Voucher</span>
+                        <span class="blue fz-11" id="discText">Pilih Voucher</span>
                         <!-- <i class="abu ri-arrow-right-s-line"></i> -->
                     </a>
 
@@ -265,6 +291,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Metode Pembayaran -->
         <div class="container bg-white py-4 mb-5 pb-5 border-top-custom d-none d-lg-block">
@@ -288,7 +315,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                 </div>
                 <div class="tab-content mt-4 d-none d-lg-block" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                        <label class="radioWrapper ps-2 row d-flex align-items-start py-3 d-none">
                             <div class="col-1 left me-3">
                                 <img src="assets/img/bca.svg" alt="">
                             </div>
@@ -306,7 +333,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                             <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                 <span class="fw-600 fz-12">Bank Mandiri </span>
                                 <span class="fz-9" style="width: 90%">Hanya menerima dari Bank Mandiri termasuk Bank Syariah Metode Pembayaran Lebih Mudah</span>
-                                <input type="radio" name="pembayaran" id="p" value="mandiri" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <input type="radio" name="pembayaran" id="p" value="MANDIRIVA" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
                                 <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
                         </label>
@@ -318,7 +345,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                                 <span class="fw-600 fz-12">Bank BNI </span>
                                 <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BNI
                                     Metode Pembayaran Lebih Mudah</span>
-                                <input type="radio" name="pembayaran" id="p" value="bni" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <input type="radio" name="pembayaran" id="p" value="BNIVA" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
                                 <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
                         </label>
@@ -331,7 +358,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                             <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                 <span class="fw-600 fz-12">Alfamart </span>
                                 <span class="fz-10">Hanya menerima dari Alfamart. Metode Pembayaran Lebih Mudah</span>
-                                <input type="radio" name="pembayaran" id="p" value="alfamart" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <input type="radio" name="pembayaran" id="p" value="ALFAMART" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
                                 <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
                         </label>
@@ -342,7 +369,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                             <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                 <span class="fw-600 fz-12">Indomaret</span>
                                 <span class="fz-10">Hanya menerima dari Indomaret. Metode Pembayaran Lebih Mudah</span>
-                                <input type="radio" name="pembayaran" id="p" value="indomaret" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
+                                <input type="radio" name="pembayaran" id="p" value="INDOMARET" onclick="document.getElementById('method').value = this.value;console.log(this.value)">
                                 <span class="checkmark position-absolute top-50 me-2"></span>
                             </div>
                         </label>
@@ -369,20 +396,22 @@ $costs = getCost($address['city_id'], 151, 1000);
                         <span class="abu fz-12">Rp. <?= $total ?></span>
                     </div>
                 </div>
+                <?php if($idProducts[0] != '17') : ?>
                 <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4">
                     <div class="left gap-2 d-flex align-items-center">
                         <span class="fz-12 abu">Subtotal Pengiriman</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="abu fz-12" id="pengiriman2">Rp. 0</span>
+                        <span class="abu fz-12">Rp. <span id="pengiriman2"><?= $hrg ?></span></span>
                     </div>
                 </div>
+                <?php endif; ?>
                 <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4" id="voucher">
                     <div class="left gap-2 d-flex align-items-center">
                         <span class="fz-12 abu">Potongan voucher</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="abu fz-12" id="pengiriman2">Rp. 0</span>
+                        <span class="abu fz-12">Rp. <span id="diskon">0</span></span>
                     </div>
                 </div>
                 <!-- <div class="d-none d-lg-flex align-items-center justify-content-between justify-content-lg-end  gap-4 mt-3">
@@ -402,27 +431,31 @@ $costs = getCost($address['city_id'], 151, 1000);
             <div class="d-flex justify-content-end gap-lg-3 align-items-center ps-3">
                 <div class="d-none d-lg-flex flex-column align-items-end">
                     <span class="fz-12 fw-500">Total Pembayaran</span>
-                    <span class="fz-12 fw-600 orange">Rp. <span  id="total"><?= $total ?></span>
+                    <span class="fz-12 fw-600 orange">Rp. <span  id="total"><?= (isset($type)) ? $total : $hrg + $total ?></span>
                 </div>
-                <form action="pengiriman.php" method="post">
+                <form action="<?= (isset($type)) ? 'pembayaran.php' : 'pengiriman.php' ?>" method="post">
                 <!-- Mobile -->
                     <input type="text" name="idProduct" id="idProduct" value="<?= implode(',', $idProducts) ?>" hidden>
                     <input type="text" name="idCart" id="idCart" value="<?= implode(',', $idCart) ?>" hidden>
-                    <input type="text" name="qty" id="qty" value="<?= $_POST['quantity'] ?>" hidden>
+                    <input type="text" name="idVariant" id="idVariant" value="<?= ',' . $idVariant ?>" required hidden>
+                    <input type="text" name="qty" id="qty" value="<?= $quantity ?>" hidden >
                     <input type="text" name="amount" id="amount1" value="" hidden>
+                    <input type="text" name="voucherID" id="voucherID1" value="" hidden>
+                    <input type="text" name="voucherDisc" id="voucherDisc" value="" hidden>
                     <button type="submit" style="border: none;" class="m-0 d-block d-lg-none bg-blue text-light p-3 fz-12" onclick="document.getElementById('amount1').value = <?= $total ?>">
                         Buat Pesanan
                     </button>
                 </form>
                 <!-- Desktop -->
                 <form action="server/process/checkout.php" method="post">
-                <input type="text" name="amount" id="amount" value="" hidden required>
+                <input type="text" name="amount" id="amount" value="<?= ($type == 'member') ? $total : $hrg + $total ?>" hidden required>
                 <input type="text" name="idCart" id="idCart" value="<?= implode(',', $idCart) ?>" hidden required>
                 <input type="text" name="idProduct" id="idProduct" value="<?= implode(',', $idProducts) ?>"hidden required>
-                <input type="text" name="idVariant" id="idVariant" value="<?= $_POST['idVariant'] ?>" required hidden>
-                <input type="text" name="courier" id="cou" value="" hidden required>
+                <input type="text" name="idVariant" id="idVariant" value="<?= ',' . $idVariant ?>" hidden required >
+                <input type="text" name="courier" id="cou" value="<?= ($type == 'member') ? 'DIGITAL' : $namacou ?>" hidden required>
                 <input type="text" name="method" id="method" value="" hidden required>
-                <input type="text" name="qty" id="qty" value="<?= $_POST['quantity'] ?>" hidden required>
+                <input type="text" name="qty" id="qty" value="<?= $quantity ?>" hidden required>
+                <input type="text" name="voucherID" id="voucherID" value="" hidden>
                 <button type="submit" style="border: none;" class="d-none d-lg-block right bg-blue text-light p-3">
                     Buat Pesanan
                 </button>
@@ -434,29 +467,24 @@ $costs = getCost($address['city_id'], 151, 1000);
     <!-- Foot -->
     <?php include "components/foot.php"; ?>
     <script>
-        // Button Cart Increment Decrement
-        // const plus = document.querySelector(".plus"),
-        //     minus = document.querySelector(".minus"),
-        //     num = document.querySelector(".num");
-        // let a = 1;
-        // plus.addEventListener("click", () => {
-        //     a++;
-        //     a = (a < 10) ? a : a;
-        //     num.innerText = a;
-        // });
-
-        // minus.addEventListener("click", () => {
-        //     if (a > 1) {
-        //         a--;
-        //         a = (a < 10) ? a : a;
-        //         num.innerText = a;
-        //     }
-        // });
-
         $(document).ready(function() {
             document.getElementById('amount1').value = <?= $total ?>;
         })
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+        const diskon = document.getElementById('diskon');
+        const total = document.getElementById('total');
 
+        var asd = 0;
+
+        diskon.addEventListener('change', function() {
+            total.innerText = parseInt(total.innerText) - parseInt(diskon.innerText);
+            console.log(total.innerText);
+        })
+        if(asd == 1) {
+            console.log('asd');
+        }
     </script>
 </body>
 

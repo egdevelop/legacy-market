@@ -20,6 +20,10 @@ if($reference_type == 'JC'){
             $jumlah = explode(",", $data['qty']);
             for($i = 0 ; $i < count($variant); $i++){
                 $update = mysqli_query($conn, "UPDATE variants SET stock = stock - '$jumlah[$i]' WHERE id = '$variant[$i]'");
+                $getProduct = mysqli_query($conn, "SELECT * FROM variants WHERE id = '$variant[$i]'");
+                while($row = mysqli_fetch_array($getProduct)){
+                    $updateSold = mysqli_query($conn, "UPDATE products SET sold = sold + '$jumlah[$i]' WHERE id = '$row[id_product]'"); 
+                }
             }
 
             //RESPONE 200
@@ -61,16 +65,17 @@ if($reference_type == 'JC'){
         }
 }else if($reference_type == 'JS'){
     //CALLBACK SUBS
-        $order_info = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM subscription_orders WHERE reference = '$reference'"));
+        $order_info = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM orders WHERE reference = '$reference'"));
         $user_info = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM users WHERE id = '$order_info[id_user]'"));
         //READ STATUS
         $status = $datas['status'];
         //CHANGE STATUS SUBS
         if($status == 'PAID'){
-            $sql = "UPDATE subscription_orders SET status = '1' , paid_at = '$datas[paid_at]' WHERE reference = '$reference'";
+            $sql = "UPDATE orders SET status = '3' , paid_at = '$datas[paid_at]' WHERE reference = '$reference'";
             $result = mysqli_query($conn, $sql);
             //INSERT SUBS
-            $month1 = date('Y-m-d', strtotime('+1 month'));
+            $period = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM variants WHERE id = '$order_info[id_variant]'"))['name'];
+            $month1 = date('Y-m-d', strtotime($period));
             $sqlSubs = "INSERT INTO subscriptions (id_user, purchased_at, expiry) VALUES ('$user_info[id]', '$tanggal', '$month1')";
             $resultSubs = mysqli_query($conn, $sqlSubs);
 

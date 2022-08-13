@@ -1,6 +1,9 @@
 <?php
 session_start();
 require $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 
 // SEMUA
@@ -64,9 +67,7 @@ if(count($voucherDiscList) > 0){
 } else {
     $voucherDiscS = [];
 }
-if(!isset($_SESSION['userid'])){
-    header('Location: /login.php');
-}
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -139,15 +140,15 @@ if(!isset($_SESSION['userid'])){
                                 </div>
                                     <?php if($voucherGOList != null) :?>
                                     <div class="my-4 row d-flex flex-wrap align-items-center justify-content-start gapCustom ada">
-                                        <span class="fz-14 fw-600" id="voucher1">Voucher Gratis Ongkir</span>
+                                    <span class="fz-14 fw-600 vou">Voucher Gratis Ongkir</span>
                                         <?php foreach($voucherGOList as $aa) : ?>
-                                            <?php if(date('d-m-Y') <= $aa['expiry']) : $c++?>
+                                            <?php if(date("Y-m-d") <= $aa['expiry']) : $c++?>
                                                 <div class="col-11 col-lg-5 borderVoucher left d-flex align-items-center gap-3">
                                                     <img src="assets/img/voucherImg.svg" alt="" class="voucherImg">
                                                     <div class="d-flex flex-column">
                                                         <span class="fz-12">Min. Belanja Rp <?= $aa['min_buy'] ?>
                                                         </span>
-                                                        <?php if(date('d-m-Y') == $aa['expiry']) : ?>
+                                                        <?php if(date("Y-m-d") == $aa['expiry']) : ?>
                                                             <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($aa['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span>
                                                         <?php else : ?>
                                                             <span class=" fz-10 blue">Berakhir pada <?= $aa['expiry'] ?></span>
@@ -164,14 +165,13 @@ if(!isset($_SESSION['userid'])){
 
                                     <?php if($voucherDiscList != null) :?>
                                     <div class="my-4 row d-flex flex-wrap align-items-center justify-content-start gapCustom">
-                                        <span class="fz-14 fw-600">Voucher Diskon</span>
                                         <?php foreach($voucherDiscList as $ab) : $d++; ?>
                                         <div class="col-11 col-lg-5 borderVoucher left d-flex align-items-center gap-3">
                                             <img src="assets/img/voucherImg.svg" alt="" class="voucherImg">
                                             <div class="d-flex flex-column">
                                                 <span class="fz-12">Min. Belanja Rp <?= $ab['min_buy'] ?>
                                                 </span>
-                                                <?php if(date('d-m-Y') == $ab['expiry']) : ?>
+                                                <?php if(date("Y-m-d") == $ab['expiry']) : ?>
                                                     <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($ab['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span>
                                                 <?php else : ?>
                                                     <span class=" fz-10 blue">Berakhir pada <?= $ab['expiry'] ?></span>
@@ -187,15 +187,15 @@ if(!isset($_SESSION['userid'])){
                                 <span class="fz-14 fw-600" id="voucher1"></span>
                                 <?php if($voucherGOListTerbaru != null) :?>
                                     <div class="my-4 row d-flex flex-wrap align-items-center justify-content-start gapCustom">
-                                        <span class="fz-14 fw-600" id="voucher1">Voucher Gratis Ongkir</span>
+                                        <span class="fz-14 fw-600 vou">Voucher Gratis Ongkir</span>
                                         <?php foreach($voucherGOListTerbaru as $ba) : ?>
-                                            <?php if(date('d-m-Y') <= $ba['expiry']) : $c++?>
+                                            <?php if(date("Y-m-d") <= $ba['expiry']) : $c++?>
                                                 <div class="col-11 col-lg-5 borderVoucher left d-flex align-items-center gap-3">
                                                     <img src="assets/img/voucherImg.svg" alt="" class="voucherImg">
                                                     <div class="d-flex flex-column">
                                                         <span class="fz-12">Min. Belanja Rp <?= $ba['min_buy'] ?>
                                                         </span>
-                                                        <?php if(date('d-m-Y') == $ba['expiry']) : ?>
+                                                        <?php if(date("Y-m-d") == $ba['expiry']) : ?>
                                                             <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($ba['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span>
                                                         <?php else : ?>
                                                             <span class=" fz-10 blue">Berakhir pada <?= $ba['expiry'] ?></span>
@@ -218,7 +218,7 @@ if(!isset($_SESSION['userid'])){
                                             <div class="d-flex flex-column">
                                                 <span class="fz-12">Min. Belanja Rp <?= $bb['min_buy'] ?>
                                                 </span>
-                                                <?php if(date('d-m-Y') == $bb['expiry']) : ?>
+                                                <?php if(date("Y-m-d") == $bb['expiry']) : ?>
                                                     <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($bb['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span>
                                                 <?php else : ?>
                                                     <span class=" fz-10 blue">Berakhir pada <?= $bb['expiry'] ?></span>
@@ -232,17 +232,17 @@ if(!isset($_SESSION['userid'])){
                                 </div>
                                 <div class="tab-pane fade mt-4" id="Berakhir" role="tabpanel" aria-labelledby="Berakhir">
                                 <span class="fz-14 fw-600" id="voucher1"></span>
-                                <?php if($voucherGOS != null) :?>
+                                <?php $q = 1; if($voucherGOS != null) :?>
                                     <div class="my-4 row d-flex flex-wrap align-items-center justify-content-start gapCustom">
-                                        <span class="fz-14 fw-600" id="voucher1">Voucher Gratis Ongkir</span>
+                                        <span class="fz-14 fw-600 vou">Voucher Gratis Ongkir</span>
                                         <?php foreach($voucherGOS as $ca) : ?>
-                                            <?php if(date('d-m-Y') <= $ca['expiry']) : $c++?>
+                                            <?php if(date("Y-m-d") <= $ca['expiry']) : $c++?>
                                                 <div class="col-11 col-lg-5 borderVoucher left d-flex align-items-center gap-3">
                                                     <img src="assets/img/voucherImg.svg" alt="" class="voucherImg">
                                                     <div class="d-flex flex-column">
                                                         <span class="fz-12">Min. Belanja Rp <?= $ca['min_buy'] ?>
                                                         </span>
-                                                        <?php if(date('d-m-Y') == $ca['expiry']) : ?>
+                                                        <?php if(date("Y-m-d") == $ca['expiry']) : ?>
                                                             <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($ca['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span>
                                                         <?php else : ?>
                                                             <span class=" fz-10 blue">Berakhir pada <?= $ca['expiry'] ?></span>
@@ -265,7 +265,7 @@ if(!isset($_SESSION['userid'])){
                                             <div class="d-flex flex-column">
                                                 <span class="fz-12">Min. Belanja Rp <?= $cb['min_buy'] ?>
                                                 </span>
-                                                <?php if(date('d-m-Y') == $cb['expiry']) : ?>
+                                                <?php if(date("Y-m-d") == $cb['expiry']) : ?>
                                                 <span class=" fz-10 blue">Berakhir dlm <span class=" fz-10 blue">Berakhir dlm <?php $future_date = new DateTime($cb['expiry']) ; echo 24 - $future_date->diff(new DateTime())->format("%h") ?> jam</span> jam</span>
                                                 <?php else : ?>
                                                 <span class=" fz-10 blue">Berakhir pada <?= $cb['expiry'] ?></span>
@@ -317,8 +317,12 @@ if(!isset($_SESSION['userid'])){
         var d = <?= $d ?>;
         if(c == 0 && d == 0) {
             var spans = document.querySelectorAll("#voucher1");
+            var vous = document.querySelectorAll(".vou");
             spans.forEach(function(el) {
                 el.innerHTML = "Tidak ada voucher";
+            });
+            vous.forEach(function(el) {
+                el.style = 'display: none';
             });
         }
 

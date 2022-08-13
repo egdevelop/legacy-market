@@ -17,7 +17,7 @@ function discountedPrice($price, $discount)
 
 function rupiahFormat($angka)
 {
-    $hasil_rupiah = "Rp. " . number_format($angka, 2, ',', '.');
+    $hasil_rupiah = number_format($angka, 2, ',', '.');
     $hasil_rupiah = explode(",", $hasil_rupiah);
     $hasil = $hasil_rupiah[0];
     return $hasil;
@@ -34,6 +34,21 @@ function limitChar($x, $length)
     $y=substr($x,0,$length) . '...';
     echo $y;
   }
+}
+
+function whichPrice($grosir, $eceran, $qty) {
+    if($qty >= 60) {
+        return $grosir;
+    } else {
+        return $eceran;
+    }
+}
+{
+    if ($grosir == 0) {
+        return $eceran;
+    } else {
+        return $grosir;
+    }
 }
 
 function updatePassword($datas, $email) {
@@ -135,8 +150,10 @@ function getProductByVariant($id) {
         'id_variant' => $data1['id'],
         'id_product' => $data2['id'],
         'name' => $data2['name'],
+        'variantName' => $data1['name'],
         'variant' => $data1['name'],
         'price' => $data1['retail_price'],
+        'grosir' => $data1['wholesaler_price_1'],
         'photo' => $data1['photo'],
     );
 
@@ -147,9 +164,19 @@ function getAllProducts() {
     global $conn;
 
     $query = mysqli_query($conn, "SELECT * FROM products");
-    $output = mysqli_fetch_all($query, MYSQLI_ASSOC);
-
-    return $output;
+    $a = 0;
+    while($row = mysqli_fetch_assoc($query)) {
+        $variant = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM variants WHERE id_product = '$row[id]'"));
+        $data[$a]['id'] = $row['id'];
+        $data[$a]['name'] = $row['name'];
+        $data[$a]['sold'] = $row['sold'];
+        $data[$a]['stock'] = $row['stock'];
+        $data[$a]['desc'] = $row['description'];
+        $data[$a]['retail_price'] = $variant['retail_price'];
+        $data[$a]['photos'] = $variant['photo'];
+        $a++;
+    }
+    return $data;
 }
 
 function relatedProducts($id, $category) {

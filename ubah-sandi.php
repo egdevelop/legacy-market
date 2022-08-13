@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
+if(!isset($_SESSION['userid'])){
+    header('Location: login.php');
+}
 
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = " . $_SESSION['userid']));
 
@@ -11,9 +14,6 @@ if(isset($_POST['sandi1'])) {
     header('Location: /');
 }
 
-if(!isset($_SESSION['userid'])){
-    header('Location: login.php');
-}
 
 ?>
 
@@ -131,15 +131,9 @@ if(!isset($_SESSION['userid'])){
             if(sandi1 != null) {
                 if(sandi1 == sandi2) {
                     document.getElementById('form').submit();
-                } else {
-                    alert('Sandi tidak sama');
                 }
             } else {
-                if(sandi2 == null) {
-                    alert('Sandi tidak boleh kosong');
-                } else {
-                    alert('Sandi tidak sama');
-                }
+                
             }
         });
 

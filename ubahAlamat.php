@@ -1,7 +1,9 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/db.php";
+if(!isset($_SESSION['userid'])){
+    header('Location: login.php');
+}
 $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
 $a = new rajaongkir();
 $kota = $a->get_city();
@@ -28,13 +30,10 @@ if(isset($_POST['name'])) {
     $sql = "INSERT INTO address (user_id, name, no, province, city, city_id, district, code, detail, isPrimary) VALUES ('$userid', '$name', '$nohp', '$province', '$city', '$city_id', '$district', '$postcode', '$detail', 0)";
     $query = mysqli_query($conn, $sql);
     if($query){
-        echo "<script>alert('Alamat berhasil ditambahkan'); window.location = 'ubahProfil.php'</script>";
+        echo "<script>window.location = 'ubahProfil.php'</script>";
     }else{
         echo mysqli_error($conn);
     }
-}
-if(!isset($_SESSION['userid'])){
-    header('Location: login.php');
 }
 ?>
 

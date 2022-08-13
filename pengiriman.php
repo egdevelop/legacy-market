@@ -1,6 +1,13 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
 session_start();
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
+
+if($_POST['amount'] == null) {
+    header('Location: keranjang.php');
+}
 
 $addres = mysqli_query($conn, "SELECT * FROM address WHERE user_id = '$_SESSION[userid]'");
 $address = mysqli_fetch_assoc($addres);
@@ -44,7 +51,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                                 </div>
                             </button>
                         </p>
-                        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                        <div id="flush-collapseOne" class="accordion-collapse collapse show" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body mt-1 position-relative">
                                 <?php foreach($costs as $c) : ?>
                                 <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
@@ -58,6 +65,7 @@ $costs = getCost($address['city_id'], 151, 1000);
                                         document.getElementById('total').innerText = '<?php $all = $_POST['amount'] + $c['harga']; echo $all ?>';
                                         document.getElementById('amount').value = '<?php $all = $_POST['amount'] + $c['harga']; echo $all ?>';
                                         document.getElementById('courier').value = '<?= $c['name'] ?>';
+                                        document.getElementById('ongkir').value = '<?= $c['harga'] ?>';
                                         ">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
@@ -93,11 +101,15 @@ $costs = getCost($address['city_id'], 151, 1000);
         </div>
         <form action="pembayaran.php" method="post">
     </div>
+        <input type="text" name="ongkir" id="ongkir" value="" hidden>
         <input type="text" name="idCart" id="idCart" value="<?= $_POST['idCart'] ?>" hidden>
         <input type="text" name="amount" id="amount" value="<?= $POST['amount'] ?>" hidden>
         <input type="text" name="idProduct" id="idProduct" value="<?= $_POST['idProduct'] ?>" hidden>
+        <input type="text" name="idVariant" id="idVariant" value="<?= $_POST['idVariant'] ?>" hidden>
         <input type="text" name="qty" id="qty" value="<?= $_POST['qty'] ?>" hidden>
         <input type="text" name="courier" id="courier" value="" required hidden>
+        <input type="text" name="voucherID" id="voucherID1" value="<?= $_POST['voucherID'] ?>" hidden>
+        <input type="text" name="voucherDisc" id="voucherDisc" value="<?= $_POST['voucherDisc'] ?>" hidden>
         <!-- Navbar Bottom -->
         <div class="navbarBottom bg-white container-fluid px-0 position-fixed bottom-0 mt-5">
             <div class="d-flex justify-content-between gap-3 align-items-center ps-3">
@@ -115,6 +127,11 @@ $costs = getCost($address['city_id'], 151, 1000);
     
     <!-- Foot -->
     <?php include 'components/foot.php'; ?>
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
 </body>
 
 </html>

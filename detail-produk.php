@@ -10,7 +10,7 @@ $kota = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM address WHERE user
 if(isset($_SESSION['userid'])){
     $cart = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM carts WHERE id_user = '$_SESSION[userid]'"));
 }else{
-    $cart = 0;
+    $cart = "";
 }
 
 ?>
@@ -22,9 +22,7 @@ if(isset($_SESSION['userid'])){
     <title>Detail Products</title>
 </head>
 
-<body style="overflow-x: hidden;">
-
-    <div class="body-wrapper">
+<body>
         <!-- Mobile Navbar -->
         <div class="container mt-3 position-absolute top-0 d-block d-lg-none">
             <form class="d-flex align-items-center justify-content-between">
@@ -119,7 +117,7 @@ if(isset($_SESSION['userid'])){
         </div>
 
         <!-- Desktop Navbar -->
-        <div class="bg-blue pt-2 pb-2 w-100 position-fixed z-3 d-none d-sm-block">
+        <div class="bg-blue pt-2 pb-2 w-100 position-fixed top-0 z-3 d-none d-sm-block">
             <div class="container">
                 <div class="d-flex justify-content-between">
                     <div class="left d-flex gap-2 align-items-center">
@@ -128,29 +126,25 @@ if(isset($_SESSION['userid'])){
                     </div>
                     <div class="cursor-pointer kanan d-flex align-items-center gap-2 position-relative">
                         <?php if (!isset($_SESSION['userid'])) : ?>
-                        <a href="daftar.php" class="fz-12 text-light">Daftar</a>
-                        <span class="fz-12 text-light">|</span>
-                        <a href="login.php" class="fz-12 text-light">Login</a>
+                            <a href="login.php" class="fz-12 text-light">Login</a>
                         <?php else : ?>
-                            <?php $profil = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'")) ?>
-                        <div class="dropdown">
-                            <div class="dropbtn d-flex align-items-center me-2">
-                                <img src="<?= $profil['photo'] ?>" alt="" class="imgSmall">
-                                <span class="fz-12 text-light ms-2"><?= $profil['name'] ?></span>
+                            <div class="dropdown">
+                                <div class="dropbtn d-flex align-items-center me-2">
+                                    <img src="<?= $_SESSION['picture'] ?>" alt="" class="imgSmall">
+                                    <span class="fz-12 text-light ms-2"><?= $_SESSION['name'] ?></span>
+                                </div>
+                                <div class="dropdown-content">
+                                    <a href="profilDetail.php" class="listProfile w-100 fz-12 m-auto">
+                                        Akun saya
+                                    </a>
+                                    <a href="pesanan-saya.php" class="listProfile w-100 fz-12 m-auto">
+                                        Pesanan saya
+                                    </a>
+                                    <a href="server/Login/logout.php" class="fz-12 m-auto listProfile w-100">
+                                        Logout
+                                    </a>
+                                </div>
                             </div>
-                            <div class="dropdown-content">
-                                <a href="profilDetail.php" class="listProfile w-100 fz-12 m-auto">
-                                    Akun saya
-                                </a>
-                                <a href="pesanan-saya.php" class="listProfile w-100 fz-12 m-auto">
-                                    Pesanan saya
-                                </a>
-                                <a href="server/Login/logout.php" class="fz-12 m-auto listProfile w-100">
-                                    Logout
-                                </a>
-                                <!-- <div class="panah"></div> -->
-                            </div>
-                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -191,32 +185,49 @@ if(isset($_SESSION['userid'])){
                 </div>
                 <div class="col-12 col-lg-7 position-relative pt-2">
                     <div class="container">
-                        <!-- <ul onclick="myFunction(event)"
-                            class="container mt-4 d-flex justify-content-center gap-3 d-flex d-lg-none nav nav-pills mb-3"
-                            id="pills-tab" role="tablist">
-                            <li class="nav-item fz-14 fw-600 px-3" role="presentation">
-                                <button class="nav-link-custom activeDetailProduk" id="ecer" data-bs-toggle="pill"
-                                    data-bs-target="#Ecer" type="button" role="tab" aria-controls="ecer"
-                                    aria-selected="true">Ecer</button>
-                            </li>
-                            <span style="color: rgba(196, 196, 196, 0.3);">|</span>
-                            <li class="nav-item fz-14 fw-600 px-3" role="presentation">
-                                <button class="nav-link-custom" id="pills-profile-tab" data-bs-toggle="pill"
-                                    data-bs-target="#Grosir" type="button" role="tab" aria-controls="grosir"
-                                    aria-selected="false">Grosir</button>
-                            </li>
-                        </ul> -->
-                        <div class="tab-content d-lg-none" id="pills-tabContent">
-                            <div class="tab-pane mt-4 fade show active" id="Ecer" role="tabpanel"
-                                aria-labelledby="ecer">
-                                <div class="d-flex flex-column align-items-center justify-content-center gap-2">
-                                    <h5 class="orange">Rp20.000</h5>
-                                    <span class="fz-9 fw-600 abu">per 1 pcs ( Satuan )</span>
+                        <!-- Desktop -->
+                        <div class="d-none d-lg-block">
+                            <h6 class="fw-bold text-dark mt-2"><?= $product['name'] ?></h6>
+                            <div class="d-flex align-items-center justify-content-between gap-1">
+                                <div class="left d-flex align-items-center gap-1">
+                                    <span class="fz-12 yellow">4.5</span>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <span class="fz-12 text-secondary mx-2 d-none d-lg-flex">|</span>
+                                    <span class="fz-12 text-secondary d-none d-lg-flex"><?= $product['stock'] ?> Stock</span>
+                                    <span class="fz-12 text-secondary mx-2">|</span>
+                                    <span class="fz-12 text-secondary"><?= $product['sold'] ?> Terjual</span>
                                 </div>
-                                <hr class="mb-3 orange">
+                                <div class="right d-flex gap-2 d-flex d-lg-none">
+                                    <!-- <span class="text-dark"><i class="ri-heart-line"></i></span>
+                                    <span class="text-dark"><i class="ri-arrow-go-forward-line"></i></span> -->
+                                    <span class="text-dark"><i class="ri-whatsapp-line"></i></span>
+                                </div>
                             </div>
-                            <div class="tab-pane mt-4 fade" id="Grosir" role="tabpanel" aria-labelledby="grosir">
-                                <div class="d-flex justify-content-center gap-2">
+                        </div>
+                        <!-- End -->
+                        
+                        <!-- <span class="text-secondary fz-12">2.5 Rb Terjual</span> -->
+                        <ul class="nav nav-pills my-3 orangeBtn gap-3 d-flex justify-content-center justify-content-lg-start" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fz-14 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Ecer</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fz-14" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" <?= ($_SESSION['role'] != 3) ? 'disabled' : '' ?>>Grosir</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="pills-tabContent">
+                            <div class="tab-pane fade my-3 show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                <div class="d-flex gap-2 align-items-center justify-content-center justify-content-lg-start">
+                                    <span class="fz-18 fw-600 orange" id="harga">Rp. <?= rupiahFormat($product['variants'][1]['retail_price']) ?></span>
+                                    <span class="fz-12 text-secondary">per 1 pcs ( Satuan )</span>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade my-3" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                                <div class="d-flex gap-2 align-items-center justify-content-center justify-content-lg-start">
                                     <div class="d-flex flex-column align-items-center">
                                         <h5 class="orange">19.000</h5>
                                         <span class="fz-9 fw-600 abu">per 60 pcs</span>
@@ -230,93 +241,41 @@ if(isset($_SESSION['userid'])){
                                         <span class="fz-9 fw-600 abu"> 300 pcs</span>
                                     </div>
                                 </div>
-                                <hr class="mb-5 orange">
                             </div>
                         </div>
-                        <h6 class="fw-bold text-dark mt-2"><?= $product['name'] ?></h6>
-                        <div class="d-flex align-items-center justify-content-between gap-1">
-                            <div class="left d-flex align-items-center gap-1">
-                                <span class="fz-12 yellow">4.5</span>
-                                <i class="ri-star-fill yellow fz-12"></i>
-                                <i class="ri-star-fill yellow fz-12"></i>
-                                <i class="ri-star-fill yellow fz-12"></i>
-                                <i class="ri-star-fill yellow fz-12"></i>
-                                <i class="ri-star-fill yellow fz-12"></i>
-                                <span class="fz-12 text-secondary mx-2 d-none d-lg-flex">|</span>
-                                <span class="fz-12 text-secondary d-none d-lg-flex"><?= $product['stock'] ?> Stock</span>
-                                <span class="fz-12 text-secondary mx-2">|</span>
-                                <span class="fz-12 text-secondary"><?= $product['sold'] ?> Terjual</span>
-                            </div>
-                            <div class="right d-flex gap-2 d-flex d-lg-none">
-                                <!-- <span class="text-dark"><i class="ri-heart-line"></i></span>
-                                <span class="text-dark"><i class="ri-arrow-go-forward-line"></i></span> -->
-                                <span class="text-dark"><i class="ri-whatsapp-line"></i></span>
+                        <!-- Mobile -->
+                        <div class="d-block d-lg-none">
+                            <h6 class="fw-bold text-dark mt-2"><?= $product['name'] ?></h6>
+                            <div class="d-flex align-items-center justify-content-between gap-1">
+                                <div class="left d-flex align-items-center gap-1">
+                                    <span class="fz-12 yellow">4.5</span>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <i class="ri-star-fill yellow fz-12"></i>
+                                    <span class="fz-12 text-secondary mx-2 d-none d-lg-flex">|</span>
+                                    <span class="fz-12 text-secondary d-none d-lg-flex"><?= $product['stock'] ?> Stock</span>
+                                    <span class="fz-12 text-secondary mx-2">|</span>
+                                    <span class="fz-12 text-secondary"><?= $product['sold'] ?> Terjual</span>
+                                </div>
+                                <div class="right d-flex gap-2 d-flex d-lg-none">
+                                    <!-- <span class="text-dark"><i class="ri-heart-line"></i></span>
+                                    <span class="text-dark"><i class="ri-arrow-go-forward-line"></i></span> -->
+                                    <span class="text-dark"><i class="ri-whatsapp-line"></i></span>
+                                </div>
                             </div>
                         </div>
-                        <!-- <span class="text-secondary fz-12">2.5 Rb Terjual</span> -->
-                        <!-- <div class="d-flex gap-3 mt-3 d-none d-lg-flex">
-                            <button type="button" class="btn-outline-yellow px-5 py-2">Ecer</button>
-                            <button type="button" class="btn-outline-abu px-5 py-2">Grosir</button>
-                        </div> -->
-                        <div class="mt-3 d-flex gap-3 align-items-center d-none d-lg-flex">
-                            <span class="fz-18 fw-600 orange" id="harga"><?= rupiahFormat($product['variants'][1]['retail_price']) ?></span>
-                            <span class="fz-12 text-secondary">per 1 pcs ( Satuan )</span>
-                        </div>
-                        <div class="row mt-3 d-flex align-items-center d-none d-lg-flex">
-                            <div class="col-3">
+                        <!-- End -->
+                        <div class="row d-flex align-items-center d-none d-lg-flex">
+                            <!-- <div class="col-3">
                                 <span class="fz-12 fw-600 text-secondary">Diskon produk</span>
                             </div>
                             <div class="col-9">
                                 <span class="text-light fz-10 fw-500 bg-yellow px-flash">57% OFF</span>
-                            </div>
+                            </div> -->
                         </div>
-                        <div class="row mt-3 d-flex d-none d-lg-flex">
-                            <div class="col-3">
-                                <span class="fz-12 fw-600 text-secondary">Pengiriman</span>
-                            </div>
-                            <div class="col-6 d-flex flex-column">
-                                <div class="right d-flex gap-2">
-                                    <img src="assets/img/free.svg" alt="">
-                                    <div class="d-flex gap-2 flex-column">
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <span class="fz-11 fw-600 px-flash">Gratis Ongkir</span>
-                                            <img src="assets/img/truck.svg" alt="">
-                                        </div>
-                                        <span class="fz-10">Gratis ongkir khusus pembelian grosir</span>
-                                    </div>
-                                </div>
-                                <div class="right mt-3">
-                                    <div class="row">
-                                        <div class="col-8 d-flex gap-2 flex-column">
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <img src="assets/img/truckBlack.svg" alt="">
-                                                <span class="fz-11 px-flash">Pengiriman ke</span>
-                                                <!-- <img src="assets/img/truck.svg" alt=""> -->
-                                            </div>
-                                            <!-- <span class="fz-11">Ongkos kirim</span> -->
-                                        </div>
-                                        <div class="col-4">
-                                            <span class="kota fz-12 fw-600"><?= $kota['city'] ?></span>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-8 d-flex gap-2 flex-column">
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <img src="assets/img/truckBlack.svg" alt="" class="opacity-0">
-                                                <span class="fz-11 px-flash">Ongkos kirim</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <select class="ongkir fz-12 fw-600" name="ongkir" id="ongkir">
-                                                <option value="volvo">Rp0 - Rp20.000</option>
-                                                <option value="saab">Rp0 - Rp20.000</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3 d-flex align-items-center d-none d-lg-flex">
+                        <div class="row d-flex align-items-center d-none d-lg-flex">
                             <div class="col-3">
                                 <span class="fz-12 fw-600 text-secondary">Kuantitas</span>
                             </div>
@@ -357,7 +316,7 @@ if(isset($_SESSION['userid'])){
                                 <span class="fw-600 d-none d-lg-flex"> Masukkan Keranjang</span>
                             </a>
                             <!-- Toast Keranjang -->
-                            <div class="toast-res position-fixed bottom-0 end-0" style="z-index: 11">
+                            <div class="toast-res position-fixed top-0 end-0" style="z-index: 11">
                                 <div id="keranjang" class="toast" style="background-color: #000;" role="alert"
                                     aria-live="assertive" aria-atomic="true">
                                     <div class="toast-header">
@@ -374,7 +333,7 @@ if(isset($_SESSION['userid'])){
                             </div>
 
                             <!-- Toast Belum Pilih variasi -->
-                            <div class="toast-res position-fixed bottom-0 end-0" style="z-index: 11">
+                            <div class="toast-res position-fixed top-0 end-0" style="z-index: 999999">
                                 <div id="notVariant" class="toast" style="background-color: #000;" role="alert"
                                     aria-live="assertive" aria-atomic="true">
                                     <div class="toast-header">
@@ -410,9 +369,7 @@ if(isset($_SESSION['userid'])){
                             </a>
                         </div>
                     </div>
-                    <p class="text-light fw-bold fz-14 text-center z-3 position-absolute desc1 d-none" id="hide2">
-                        Halaman
-                        Grosir Khusus Member</p>
+                    <p class="text-light fw-bold fz-14 text-center z-3 position-absolute desc1 d-none" id="hide2">Halaman Grosir Khusus Member</p>
                 </div>
             </div>
         </div>
@@ -420,7 +377,7 @@ if(isset($_SESSION['userid'])){
 
     <div class="position-relative container-lg px-0 mt-lg-4">
         <div class="bg-disable position-absolute top-0 start-0 end-0 bottom-0 h-100 d-none" id="hide3"></div>
-        <div class="bg-white container mt-3 pt-3 d-flex d-lg-none align-items-center justify-content-between">
+        <!-- <div class="bg-white container mt-3 pt-3 d-flex d-lg-none align-items-center justify-content-between">
             <div class="d-flex flex-column">
                 <div class="row d-flex align-items-center gap-2">
                     <div class="col-2">
@@ -449,7 +406,6 @@ if(isset($_SESSION['userid'])){
             <a class="right" type="button" data-bs-toggle="offcanvas" data-bs-target="#ongkirCanvas" aria-controls="ongkirCanvas">
                 <span><i class="ri-arrow-right-s-line"></i></span>
             </a>
-            <!-- Popup Informasi Ongkir -->
             <div class="offcanvas offcanvas-bottom" style="height: 65%" tabindex="-1" id="ongkirCanvas" aria-labelledby="offcanvasBottomLabel">
                 <div class="offcanvas-body small">
                     <span class="fz-14 d-flex justify-content-center">Informasi Ongkir</span>
@@ -485,18 +441,8 @@ if(isset($_SESSION['userid'])){
                     <button class="bg-blue px-3 py-2 text-light" style="border: none">Ok</button>
                 </div>
             </div>
-        </div>
-
-        <div class="bg-white container">
-
-        </div>
-
-        <!-- Variasi Mobile -->
-
-
-        <!-- Spesifikasi -->
-
-        <!-- Deskripsi -->
+        </div> -->
+        
         <div class="container bg-white pt-lg-4 pb-3">
             <div class="container p-2">
                 <span class="fz-14 fw-600 bg-abu-muda d-flex p-2 d-none d-lg-block">
@@ -537,6 +483,7 @@ if(isset($_SESSION['userid'])){
                 $sum += $row['rate'];
                 $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$row[id_user]'"));
                 $reviews[] = [
+                    'userImg' => $user['photo'],
                     'id' => $row['id'],
                     'name' => $user['name'],
                     'rate' => $row['rate'],
@@ -549,9 +496,11 @@ if(isset($_SESSION['userid'])){
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="left d-flex flex-column">
-                        <span class="fz-14 fw-600">
-                            Penilaian produk
-                        </span>
+                        <a href="penilaian.php?id=<?= $_GET['id'] ?>" style="text-decoration: none;">
+                            <span class="fz-14 fw-600">
+                                Penilaian produk
+                            </span>
+                        </a>
                         <div class="d-flex align-items-center d-flex d-lg-none">
                             <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
                             <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
@@ -562,7 +511,7 @@ if(isset($_SESSION['userid'])){
                             <span class="fz-10 yellow mx-2">(<?= count($reviews) ?> Ulasan)</span>
                         </div>
                     </div>
-                    <a href="penilaian.php" class="right d-flex d-lg-none">
+                    <a href="penilaian.php?id=<?= $_GET['id'] ?>" style="text-decoration: none;" class="right d-flex d-lg-none">
                         <div class="left">
                             <span class="blue fz-11">Lihat semua</span>
                         </div>
@@ -629,41 +578,13 @@ if(isset($_SESSION['userid'])){
                         </label>
                     </div>
                 </div>
-                <!-- <div class="row d-flex my-4 ms-lg-4">
-                    <div class="col-1 profile">
-                        <img src="assets/img/profile.jpg" alt="" class="profileImg">
-                    </div>
-                    <div class="col-9 d-flex flex-column">
-                        <span class="fz-10">Achmad</span>
-                        <div class="star">
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                        </div>
-                        <span class="fz-10">2022-04-05 11:58 | Variasi: N - MERAH MUDA
-                        </span>
-                        <span class="fz-12 mt-3">Alhamdulilah Barang sudah sampai dipacking dengan rapi.. bagus
-                            tidak
-                            rusak.
-                            Terima kasih
-                        </span>
-                        <div class="d-flex gap-2">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                        </div>
-                    </div>
-                </div>
-                <hr /> -->
                 <div class="asd">
                     <?php
                     foreach($reviews as $r) :
                     ?>
                     <div class="row d-flex my-4 ms-lg-4">
                         <div class="col-1 profile">
-                            <img src="assets/img/profile.jpg" alt="" class="profileImg">
+                            <img src="<?= $r['userImg'] ?>" alt="" class="profileImg">
                         </div>
                         <div class="col-9 d-flex flex-column">
                             <span class="fz-10"><?= $r['name'] ?></span>
@@ -750,11 +671,12 @@ if(isset($_SESSION['userid'])){
             </div>
         </div>
     </div>
-    </div>
     
     <?php if(isset($_SESSION['success'])) { ?>
         
     <?php } ?>
+
+    
 
     <!-- Foot -->
     <?php include "components/foot.php"; ?>
@@ -804,17 +726,6 @@ if(isset($_SESSION['userid'])){
             document.getElementById("hide4").classList.remove("d-none");
         }
 
-        // Navbar Scroll
-        var mainNav = document.querySelector('.main-nav');
-
-        window.onscroll = function() {
-            windowScroll();
-        };
-
-        function windowScroll() {
-            mainNav.classList.toggle("bg-blue", mainNav.scrollTop > 50 || document.documentElement.scrollTop > 50);
-        }
-
         // Button Cart Increment Decrement
         const plus = document.querySelector(".plus"),
             minus = document.querySelector(".minus"),
@@ -832,18 +743,37 @@ if(isset($_SESSION['userid'])){
                 a = (a < 10) ? a : a;
                 num.innerText = a;
             }
+
         });
+        var variantCheck = false;
+
 
         // Popup Keranjang
-        var toastTrigger = document.getElementById('keranjangId')
+        var toastTrigger = document.querySelectorAll('#keranjangId')
+        var asdTriger = document.getElementById('asd')
+        var beliTriger = document.getElementById('beliId')
         var toastLiveExample = document.getElementById('keranjang')
         var toastLiveExample2 = document.getElementById('notVariant')
         if (toastTrigger) {
             var toast = new bootstrap.Toast(toastLiveExample)
             var toast2 = new bootstrap.Toast(toastLiveExample2)
-            toastTrigger.addEventListener('click', function() {
-                toast2.show();
-            })
+            toastTrigger.forEach(function(el, key) {
+                el.addEventListener('click', function() {
+                    if(variantCheck != true) {
+                        toast2.show();
+                    }
+                });
+            });
+            asdTriger.addEventListener('click', function() {
+                     if(variantCheck != true) {
+                        toast2.show();
+                    }
+                });
+            beliTriger.addEventListener('click', function() {
+                     if(variantCheck != true) {
+                        toast2.show();
+                    }
+                });
             var fullURL = window.location.href;
             var url1 = fullURL.split('?');
             var url = url1[1].split('&');
@@ -855,8 +785,10 @@ if(isset($_SESSION['userid'])){
             }
         }
 
+
         function changeData(data) {
             var datas = data.split("|");
+            variantCheck = true;
             var quantity = document.getElementById("num").innerText;
             document.getElementById("harga").innerText = formatRupiah(datas[0], 'Rp. ');
             document.getElementById("keranjangId").href = "server/process/addToCart.php?id=" + datas[1] + "&qty=" + quantity;

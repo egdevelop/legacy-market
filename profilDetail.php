@@ -5,6 +5,13 @@ $data = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '
 if(!isset($_SESSION['userid'])){
     header('Location: /login.php');
 }
+if(isset($_GET['no'])) {
+    $no = $_GET['no'];
+    mysqli_query($conn, "UPDATE users SET no_hp = '$no' WHERE id = '$_SESSION[userid]'");
+    if(mysqli_affected_rows($conn) > 0) {
+        header('Location: /profilDetail.php');
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -19,6 +26,22 @@ if(!isset($_SESSION['userid'])){
 
     <div class="body-wrapper">
         <?php include "partials/navbarProfil.php" ?>
+        <div class="bg-blue w-100 position-fixed z-3 d-block d-sm-none pb-4">
+            <div class="container">
+                <form class="pb-1 pt-4 d-flex gap-3 align-items-center justify-content-center nosubmit">
+                    <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
+                        <div class="position-relative">
+                        <a href="keranjang.php" class="ms-3 text-light iconNavbar z-1">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span class="numCart d-flex justify-content-center align-items-center">
+                                <span class="fz-12"><?= $cart ?></span>
+                            </span>
+                        </a>
+                    </div>
+                    <a href="chat.php" class="ms-3 text-light iconNavbar z-1"><i class="me-3 ri-customer-service-2-line"></i></a>
+                </form>
+            </div>
+        </div>
 
         <!-- Profil Detail -->
         <section class="py-2 py-sm-4 px-0 px-sm-4 mt-profile mb-5">
@@ -46,7 +69,7 @@ if(!isset($_SESSION['userid'])){
                                         <span class="fz-12">Username</span>
                                     </div>
                                     <div class="col-9">
-                                        <span class="fz-12 fw-600"><?= ($data['name']) ?  $data['name'] : "Naufal" ?></span>
+                                        <span class="fz-12 fw-600"><?= ($data['name']) ?  $data['name'] : "Admin" ?></span>
                                     </div>
                                 </div>
                                 <div class="row align-items-center my-3">
@@ -62,18 +85,24 @@ if(!isset($_SESSION['userid'])){
                                         <span class="fz-12">Email</span>
                                     </div>
                                     <div class="col-9">
-                                        <span class="fz-12 fw-500"><?= ($data['email']) ?  censoredEmail($data['email']) : "123****ail@gmail.com" ?></span>
+                                        <span class="fz-12 fw-500"><?= ($data['email']) ?  censoredEmail($data['email']) : "admin@gmail.com" ?></span>
                                     </div>
                                 </div>
                                 <div class="row align-items-center my-3">
                                     <div class="col-3">
                                         <span class="fz-12">Nomor Telepon</span>
                                     </div>
-                                    <div class="col-9">
-                                        <input type="text" name="nohp" id="nohp" style="display: none;">
-                                        <span class="fz-12 fw-500" id="a">***********12</span>
+                                    <div class="col-9" id="edit">
+                                        <span class="fz-12 fw-500" id="a"><?= substr($data['no_hp'], 0, 4) . "****" . substr($data['no_hp'], 8, 4) ?></span>
+                                        <a class="fz-12" href="javascript:void(0)" onclick="document.getElementById('edit').style = 'display: none'; document.getElementById('simpan').style = 'display: block'">ubah</a>
                                     </div>
-                                </div>
+                                    <div class="col-9" id="simpan" style="display: none">
+                                            <input class="" type="number" name="nohp" value="<?= $data['no_hp'] ?>" id="nohp" onkeyup="document.getElementById('link').href = 'profilDetail.php?no=' + this.value">
+                                            <a class="fz-12 text-success" href="javascript:void(0)" type="submit" id="link">simpan</a>
+                                             | 
+                                            <a class="fz-12 text-danger" href="javascript:void(0)" onclick="document.getElementById('edit').style = 'display: block'; document.getElementById('simpan').style = 'display: none'">batal</a>
+                                        </div>
+                                    </div>
                                 <div class="row align-items-center my-3">
                                     <div class="col-3">
                                         <span class="fz-12">Jenis Kelamin</span>

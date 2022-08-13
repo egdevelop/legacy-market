@@ -3,9 +3,6 @@ session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
 if(isset($_GET['keyword'])) {
     $keyword = $_GET['keyword'];
-    if($keyword == 'asep') {
-        echo "<script>alert('HALO DEKKKKK')</script>";
-    }
     $sql = "SELECT * FROM products WHERE `name` LIKE '%$keyword%' ORDER BY sold DESC";
     $result = mysqli_query($conn, $sql);
     $data = array();
@@ -25,12 +22,12 @@ if(isset($_GET['keyword'])) {
 
 <body>
 
-    <div class="body-wrapper">
+    <div class="body-wrapper mb-5 pb-5">
         <!-- Mobile Navbar -->
         <div class="bg-blue w-100 position-fixed z-3 d-block d-sm-none pb-4">
             <div class="container">
-                <form class="pb-1 pt-4 d-flex gap-3 align-items-center justify-content-center nosubmit">
-                    <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
+                <form action="search.php" method="GET" class="pb-1 pt-4 d-flex gap-3 align-items-center justify-content-center nosubmit">
+                    <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search" name="keyword">
                     <a href="keranjang.php" class="text-light iconNavbar z-1"><i class="ri-shopping-cart-line"></i></a>
                     <a href="chat.php" class="ms-3 text-light iconNavbar z-1"><i class="me-3 ri-customer-service-2-line"></i></a>
                 </form>
@@ -57,6 +54,13 @@ if(isset($_GET['keyword'])) {
                 <?php
                 foreach($data as $p) {
                     $img = getMainPic($p['id']);
+                    $ratings = mysqli_query($conn, "SELECT rate FROM reviews WHERE id_product = $p[id]");
+                    $rating = 0;
+                    $row = 0;
+                    while($r = mysqli_fetch_assoc($ratings)) {
+                        $rating += $r['rate'];
+                        $row++;
+                    }
                 ?>
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 px-2 my-2">
                     <a href="detail-produk.php?id=<?= $p['id'] ?>">
@@ -67,7 +71,7 @@ if(isset($_GET['keyword'])) {
                                 <span class="orange fw-bold fz-10">Rp. <?= $p['retail_price'] ?></span>
                                 <div class="d-flex justify-content-between flex-column flex-sm-row">
                                     <div class="left align-items-center">
-                                        <span class="fz-10 text-dark">5</span>
+                                        <span class="fz-10 text-dark"><?= $rating / $row ?></span>
                                         <span class="yellow fz-9"><i class="yellow fz-9 ri-star-fill"></i></span>
                                     </div>
                                     <div class="right">
@@ -82,7 +86,21 @@ if(isset($_GET['keyword'])) {
                 }
                 ?>
             </div>
-        </div>
+            <?php
+                if(count($data) == 0) {
+                ?>
+                <div class="container bg-white py-3 px-2 px-sm-4">
+                    <div class="row">
+                        <div class="col-12 bg-white py-3 d-flex flex-column align-items-center gap-2">
+                            <img src="assets/img/notFound.png" alt="Produk Tidak Ada"  style="width: 20rem;">
+                            <span class="fz-20">Produk tidak ditemukan</span>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                }
+                ?>
+        </div> 
 
         <!-- Navbar Bottom -->
         <?php include "partials/navBottom.php" ; ?>
@@ -114,16 +132,6 @@ if(isset($_GET['keyword'])) {
         document.getElementById("flashsale").style.display= "none";
     }
     }, 1000);
-
-    var mainNav = document.querySelector('.main-nav');
-
-    window.onscroll = function() {
-        windowScroll();
-    };
-
-    function windowScroll() {
-        mainNav.classList.toggle("bg-blue", mainNav.scrollTop > 50 || document.documentElement.scrollTop > 50);
-    }
     </script>
 </body>
 

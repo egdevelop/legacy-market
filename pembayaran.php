@@ -1,3 +1,12 @@
+<?php
+session_start();
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
+if(!$_POST) {
+    header('Location: keranjang.php');
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -35,7 +44,7 @@
                         </p>
                         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body mt-1 position-relative">
-                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3">
+                                <label class="radioWrapper ps-2 row d-flex align-items-start py-3" style="display: none">
                                     <div class="col-1 left me-3">
                                         <img src="assets/img/bca.svg" alt="">
                                     </div>
@@ -53,7 +62,7 @@
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                         <span class="fw-600 fz-12">Bank Mandiri </span>
                                         <span class="fz-9" style="width: 90%">Hanya menerima dari Bank Mandiri termasuk Bank Syariah Metode Pembayaran Lebih Mudah</span>
-                                        <input type="radio" name="radio"  value="mandiri" onclick="document.getElementById('method').value = this.value">
+                                        <input type="radio" name="radio"  value="MANDIRIVA" onclick="document.getElementById('method').value = this.value">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
@@ -65,7 +74,7 @@
                                         <span class="fw-600 fz-12">Bank BNI </span>
                                         <span class="fz-9" style="width: 90%">Hanya menerima dari Bank BNI
                                             Metode Pembayaran Lebih Mudah</span>
-                                        <input type="radio" name="radio"  value="bni" onclick="document.getElementById('method').value = this.value">
+                                        <input type="radio" name="radio"  value="BNIVA" onclick="document.getElementById('method').value = this.value">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
@@ -88,7 +97,7 @@
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                         <span class="fw-600 fz-12">Alfamart </span>
                                         <span class="fz-10">Hanya menerima dari Alfamart. Metode Pembayaran Lebih Mudah</span>
-                                        <input type="radio" name="radio" value="alfamart" onclick="document.getElementById('method').value = this.value">
+                                        <input type="radio" name="radio" value="ALFAMART" onclick="document.getElementById('method').value = this.value">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
@@ -99,7 +108,7 @@
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                         <span class="fw-600 fz-12">Indomaret</span>
                                         <span class="fz-10">Hanya menerima dari Indomaret. Metode Pembayaran Lebih Mudah</span>
-                                        <input type="radio" name="radio" value="indomaret" onclick="document.getElementById('method').value = this.value">
+                                        <input type="radio" name="radio" value="INDOMARET" onclick="document.getElementById('method').value = this.value">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
@@ -122,7 +131,7 @@
                                     <div class="col-10 ps-1 pe-1 d-flex gap-2 flex-column">
                                         <span class="fw-600 fz-12">QRIS</span>
                                         <span class="fz-10">Hanya menerima dari QRIS. Metode Pembayaran Lebih Mudah</span>
-                                        <input type="radio" name="radio" value="qris" onclick="document.getElementById('method').value = this.value">
+                                        <input type="radio" name="radio" value="QRISC" onclick="document.getElementById('method').value = this.value">
                                         <span class="checkmark position-absolute top-50 me-2"></span>
                                     </div>
                                 </label>
@@ -138,7 +147,7 @@
                         <span class="fz-10 abu">Subtotal untuk Produk</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="abu fz-10">Rp. <?= $total ?></span>
+                        <span class="abu fz-10">Rp. <?= $_POST['amount'] - $_POST['ongkir'] ?></span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between justify-content-lg-end  gap-4">
@@ -146,7 +155,7 @@
                         <span class="fz-10 abu">Subtotal Pengiriman</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="abu fz-10" id="pengiriman2">Rp. 0</span>
+                        <span class="abu fz-10" id="pengiriman2">Rp. <?= (isset($_POST['ongkir'])) ? $_POST['ongkir'] : '0'?></span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between justify-content-lg-end  gap-4" id="voucher">
@@ -154,7 +163,7 @@
                         <span class="fz-10 abu">Potongan voucher</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="abu fz-10" id="pengiriman2">Rp. 0</span>
+                        <span class="abu fz-10" id="pengiriman2">Rp. <?= ($_POST['voucherDisc']) ? '-'.$_POST['voucherDisc'] : '0' ?></span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between justify-content-lg-end  gap-4 mt-3">
@@ -162,7 +171,7 @@
                         <span class="fz-11 fw-600">Total Pembayaran</span>
                     </div>
                     <div class="right d-flex align-items-center ps-3">
-                        <span class="orange fw-600 fz-11">Rp. <span  id="total"><?= $total ?></span></span>
+                        <span class="orange fw-600 fz-11">Rp. <span  id="total"><?= ($_POST['voucherDisc']) ? $_POST['amount'] - $_POST['voucherDisc'] : $_POST['amount'] ?></span></span>
                     </div>
                 </div>
         </div>
@@ -172,16 +181,18 @@
     <input type="text" name="idCart" id="idCart" value="<?= $_POST['idCart'] ?>" hidden>
     <input type="text" name="amount" id="amount" value="<?= $_POST['amount'] ?>" hidden>
     <input type="text" name="idProduct" id="idProduct" value="<?= $_POST['idProduct'] ?>" hidden>
+    <input type="text" name="idVariant" id="idVariant" value="<?= $_POST['idVariant'] ?>" hidden>
     <input type="text" name="qty" id="qty" value="<?= $_POST['qty'] ?>" hidden>
-    <input type="text" name="courier" id="courier" value="<?= $_POST['courier'] ?>" hidden>
+    <input type="text" name="courier" id="courier" value="<?= (isset($_POST['courier'])) ? $_POST['courier'] : 'DIGITAL' ?>" hidden>
+    <input type="text" name="voucherID" id="voucherID" value="<?= $_POST['voucherID'] ?>" hidden>
     <input type="text" name="method" id="method" value="" required hidden>
 
     <!-- Navbar Bottom -->
     <div class="navbarBottom bg-white container-fluid px-0 position-fixed bottom-0 mt-5">
         <div class="d-flex justify-content-between gap-3 align-items-center ps-3">
             <div class="left d-flex flex-column align-items-end">
-                <span class="fz-12 fw-500">Biaya penanganan</span>
-                <span class="fz-12 fw-600 orange">Rp. <span id="amount"><?= $_POST['amount'] ?></span></span>
+                <!-- <span class="fz-12 fw-500">Biaya penanganan</span>
+                <span class="fz-12 fw-600 orange">Rp. <span id="amount"></span></span> -->
             </div>
             <button type="submit" style="border: none;" class="right bg-blue text-light p-3">
                 Konfirmasi
@@ -193,6 +204,11 @@
 
     <!-- Foot -->
     <?php include 'components/foot.php'; ?>
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
 </body>
 
 </html>

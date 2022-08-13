@@ -15,8 +15,8 @@ $detail = $_POST['detail'];
 
 $query = mysqli_query($conn, "INSERT INTO address (user_id, name, no, province, city, city_id, district, code, detail, isPrimary) VALUES ('$userid', '$name', '$nohp', '$province', '$city', '$city_id', '$district', '$postcode', '$detail', 0)");
 if($query){
-    echo "<script>alert('Alamat berhasil ditambahkan'); window.location = '../../alamat.php'</script>";
+    header('Location: /alamat.php');
 }else{
-    echo "<script>alert('Alamat gagal ditambahkan')</script>";
-    echo mysqli_error($conn);
+    echo "<script>console.log('".mysqli_error($conn)."')</script>";
+    header('Location: /alamat.php');
 }

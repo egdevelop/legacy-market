@@ -121,6 +121,16 @@ session_start();
                 $products = getAllProducts();
                 foreach($products as $p) {
                     $img = getMainPic($p['id']);
+                    $ratings = mysqli_query($conn, "SELECT rate FROM reviews WHERE id_product = $p[id]");
+                    $rating = 0;
+                    $row = 0;
+                    while($r = mysqli_fetch_assoc($ratings)) {
+                        $rating += $r['rate'];
+                        $row++;
+                    }
+                    if($p['name'] == 'Member') {
+                        continue;
+                    }
                 ?>
                 <div class="col-6 col-sm-4 col-md-3 col-xl-2 px-2 my-2">
                     <a href="detail-produk.php?id=<?= $p['id'] ?>">
@@ -128,14 +138,14 @@ session_start();
                             <img src="<?= $img ?>" alt="" class="w-100">
                             <div class="d-flex flex-column desc py-2 px-2 px-lg-3">
                                 <span class="text-dark fw-600 mt-1 mb-2 fz-12 fw-600"><?= limitChar($p['name'], '50') ?></span>
-                                <span class="orange fw-bold fz-10">Rp13.900 - Rp13.990</span>
+                                <span class="orange fw-bold fz-10">Rp. <?= rupiahFormat($p['retail_price']) ?></span>
                                 <div class="d-flex justify-content-between flex-column flex-sm-row">
                                     <div class="left align-items-center">
-                                        <span class="fz-10 text-dark">5</span>
+                                        <span class="fz-10 text-dark"><?= (is_nan($rating / $row)) ? "Belum ada Rating" :  $rating / $row  ?></span>
                                         <span class="yellow fz-9"><i class="yellow fz-9 ri-star-fill"></i></span>
                                     </div>
                                     <div class="right">
-                                        <span class="black fz-10 fw-600">112 terjual</span>
+                                        <span class="black fz-10 fw-600"><?= $p['sold'] ?> terjual</span>
                                     </div>
                                 </div>
                             </div>

@@ -18,10 +18,5 @@ $result = mysqli_query($conn, $query);
 if($result){
     header("Location: /alamat.php");
 }else{
-    echo "error";
+    header("Location: /alamat.php");
 }
-
-
-echo "<pre>";
-print_r($_POST);
-echo "</pre>";

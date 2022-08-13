@@ -2,8 +2,7 @@
 require_once '../config/functions.php';
 require_once '../Tripay/clossedPayment/index.php';
 session_start();
-$idProduct = $_POST['idProduct']; $p = explode(",", $idProduct);
-// $idProduct = (object)$idProduct; $idProduct = serialize($idProduct);
+$idProduct = $_POST['idProduct'];
 $idVariant = $_POST['idVariant']; $v = explode(",", $idVariant);
 $qty = $_POST['qty']; $q = explode(",", $qty);
 array_shift($v); array_shift($q);
@@ -31,8 +30,12 @@ if($query){
             $detailVariant = mysqli_fetch_array(mysqli_query($conn, "SELECT * FROM variants WHERE id = '$variant[$i]'"));
             $detailBarang = getProductByVariant($variant[$i]);
             $barangs["name"] = $detailBarang['name'];
-            $barangs["price"] = (int)$detailVariant['retail_price'];
             $barangs["quantity"] = (int)$jumlah[$i];
+            if($_SESSION['role'] == 3) {
+                $barangs['price'] = whichPrice($detailVariant['wholesaler_price_1'], $detailVariant['retail_price'], $barangs['quantity']);
+            } else {
+                $barangs['price'] = $detailVariant['retail_price'];
+            }
             $ongkir -= $barangs["price"] * $barangs["quantity"];
             array_push($barang, $barangs);
         }
@@ -49,7 +52,13 @@ if($query){
         $response = createPayment($data);
         $responseDecode = json_decode($response, true);
         $third_ref = $responseDecode['data']['reference'];
+        echo $response;
+
         $update = mysqli_query($conn, "UPDATE orders SET third_ref = '$third_ref' WHERE reference = '$referance'");
+        if(isset($_SESSION['idVariant'])) {
+            unset($_SESSION['idVariant']);
+            unset($_SESSION['idCart']);
+        }
         header("Location: ".$responseDecode['data']['checkout_url']);
         // echo $response;
     } else {

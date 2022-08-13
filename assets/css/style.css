@@ -644,6 +644,7 @@ input[type="radio"].radio-payment:checked {
 .varian {
     width: 4.2rem;
     height: 100%;
+    object-fit: cover;
 }
 
 .activeVarian {
@@ -952,7 +953,9 @@ input[type="radio"].radio-payment:checked {
 }
 
 .imgKeranjang {
-    width: 7rem;
+    width: 4rem !important;
+    height: auto;
+    object-fit: cover;
 }
 
 .imgVariasi {
@@ -1488,7 +1491,64 @@ nav ul ul li a:hover {
 }
 
 .imgProduct {
-    width: 20rem;
+    width: 28rem;
     height: auto;
     object-fit: cover;
+}
+
+@media(max-width: 991px) {
+    .imgProduct {
+        width: 100%;
+    }
+}
+
+.tIndent {
+    text-indent: 1rem;
+}
+
+.borStar {
+    border: 1px solid rgba(199, 90, 0, 0.651);
+}
+
+.rating-box {
+    display: inline-block;
+}
+
+.rating-container {
+    direction: rtl !important;
+}
+
+.labelStar {
+    display: inline-block;
+    margin: 15px 0;
+    color: #d4d4d4;
+    cursor: pointer;
+    font-size: 50px;
+    transition: color 0.2s;
+}
+
+.starBig {
+    width: 10rem;
+}
+
+.inputStar {
+    display: none;
+}
+
+.labelStar:hover,
+.labelStar:hover~label,
+input.inputStar:checked~label {
+    color: gold;
+}
+
+.nav-pills.orangeBtn .nav-link.active,
+.nav-pills.orangeBtn .show>.nav-link {
+    color: #FBB133;
+    background-color: transparent;
+    border: 1px solid #FBB133;
+}
+
+.nav-pills.orangeBtn .nav-link {
+    border: 1px solid #E6E5E5;
+    color: #E6E5E5;
 }

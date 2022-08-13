@@ -1,21 +1,15 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/db.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 if(isset($_SESSION['userid'])){
     $cart = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM carts WHERE id_user = '$_SESSION[userid]'"));
 }else{
-    $cart = 0;
+    $cart = "";
 }
 
 ?>
 
 <!-- Mobile Navbar -->
-<div class="bg-blue w-100 position-fixed z-3 d-block d-sm-none pb-4">
+<!-- <div class="bg-blue w-100 position-fixed z-3 d-block d-sm-none pb-4">
     <div class="container">
         <form class="pb-1 pt-4 d-flex gap-3 align-items-center justify-content-center nosubmit">
             <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" aria-label="Search">
@@ -27,10 +21,10 @@ if(isset($_SESSION['userid'])){
                     </span>
                 </a>
             </div>
-            <span class="iconNavbar z-1"><i class="ri-customer-service-2-line"></i></span>
+             <a href="chat.php" class="ms-3 text-light iconNavbar z-1"><i class="me-3 ri-customer-service-2-line"></i></a>
         </form>
     </div>
-</div>
+</div> -->
 
 <!-- Desktop Navbar -->
 <div class="bg-blue pt-2 pb-2 w-100 position-fixed z-3 d-none d-sm-block">
@@ -42,8 +36,6 @@ if(isset($_SESSION['userid'])){
             </div>
             <div class="cursor-pointer kanan d-flex align-items-center gap-2 position-relative">
                 <?php if (!$_SESSION['userid']) : ?>
-                <a href="daftar.php" class="fz-12 text-light">Daftar</a>
-                <span class="fz-12 text-light">|</span>
                 <a href="login.php" class="fz-12 text-light">Login</a>
                 <?php else : ?>
                     <?php $profil = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'")) ?>

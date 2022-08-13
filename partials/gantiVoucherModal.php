@@ -27,7 +27,13 @@
                         <span class="fz-10 blue">Berakhir dlm 9 jam</span>
                     </div>
                     <input type="radio" name="radio" onclick="
-                    document.getElementById('amount').value = '<?php $all = $all - $v['min_buy']; echo $all ?>';">
+                    document.getElementById('diskon').innerText = '<?= $v['discount'] ?>';
+                    document.getElementById('total').innerText = parseInt(document.getElementById('total').innerText) - '<?= $v['discount'] ?>';
+                    document.getElementById('voucherID').value = '<?= $v['id'] ?>';
+                    document.getElementById('voucherID1').value = '<?= $v['id'] ?>';
+                    document.getElementById('voucherDisc').value = '<?= $v['discount'] ?>';
+                    document.getElementById('discText').innerText = 'Rp. <?= $v['discount'] ?>';
+                    ">
                     <span class="checkmark position-absolute top-50 me-2"></span>
                 </div>
             </label>
@@ -47,7 +53,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="fz-12 fw-600 btn btn-secondary" data-bs-dismiss="modal">Nanti saja</button>
-            <button type="button" class="fz-12 fw-600 btn btn-primary">Konfirmasi</button>
+            <button type="button" class="fz-12 fw-600 btn btn-primary" data-bs-dismiss="modal">Konfirmasi</button>
         </div>
                 </div>
             </div>

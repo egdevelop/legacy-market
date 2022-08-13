@@ -1,6 +1,9 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . "/server/config/functions.php";
+$user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$_SESSION[userid]'"));
+session_start();
 if(!isset($_SESSION['userid'])){
-    header('Location: /login.php');
+    header('Location: login.php');
 }
 ?>
 <!doctype html>
@@ -16,13 +19,13 @@ if(!isset($_SESSION['userid'])){
 
     <div class="body-wrapper">
         <!-- Mobile Navbar -->
-        <div class="w-100 position-fixed bg-white z-3 d-block d-sm-none py-4">
+        <div class="w-100 position-fixed bg-white z-3 d-block py-4">
             <div class="container">
                 <a onclick="history.back()" class="text-dark d-flex align-items-center gap-3">
                     <i class="ri-arrow-left-s-line fz-14"></i>
                     <span class="fz-12 fw-bold fz-14">Member</span>
                 </a>
-                <ul class="nav nav-pills mb-3 d-flex d-lg-none justify-content-center my-3" id="pills-tab" role="tablist">
+                <ul class="nav nav-pills mb-3 d-flex d-lg-none gap-2 justify-content-center my-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fz-12 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Refferalku</button>
                     </li>
@@ -39,73 +42,16 @@ if(!isset($_SESSION['userid'])){
             <div class="container">
                 <div class="row d-flex justify-content-between">
                 <?php include "partials/sidebarProfil.php" ?>
-                    <!-- Desktop -->
-                    <div class="col-12 col-lg-9 right bg-white borad-10 p-4 d-none d-lg-flex flex-column">
-                        <div class="right bg-white borad-10 p-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="left">
-                                    <h6 class="fw-600">Member</h6>
-                                    <p class="fz-14 abu">Daftar member dan dapatkan benefitnya</p>
-                                </div>
-                                <div class="right">
-                                    <span class="fz-13 fw-600 px-3 py-2 text-dark d-flex align-items-center">Member
-                                        Active : -</span>
-                                    <!-- <span class="fz-13 fw-600 px-3 py-2 text-dark d-flex align-items-center">Member
-                                        Active : 2 Bulan</span> -->
-                                </div>
-                            </div>
-                            <hr class="my-2 py-0">
-                            <div class="row d-flex gap-2 d-flex justify-content-between">
-                                <div class="col-12 left">
-                                    <div class="d-flex align-items-start justify-content-between my-3">
-                                        <div class="left">
-                                            <span class="fz-14 fw-600">Anda belum terdaftar member</span>
-                                        </div>
-                                        <div class="right text-end">
-                                            <a href="daftar.php" class="btnMember borad-10 px-3 py-2 me-3 fz-12">Daftar
-                                                Member
-                                                Sekarang</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="right bg-white borad-10 p-4 mt-3">
-                            <h6 class="fw-600">Paket Member</h6>
-                            <div class="mt-2">
-                                <div class="d-flex flex-column">
-                                    <div class="cursor-pointer d-flex justify-content-between px-3 py-2 my-2 bg-blue">
-                                        <div class="left">
-                                            <span class="fz-12 text-light fw-600">2 Bulan</span>
-                                        </div>
-                                        <div class="right">
-                                            <span class="fz-12 text-light fw-600">Rp200.000</span>
-                                        </div>
-                                    </div>
-                                    <div class="cursor-pointer d-flex justify-content-between px-3 py-2 my-2 bg-yellow">
-                                        <div class="left">
-                                            <span class="fz-12 text-light fw-600">3 Bulan</span>
-                                        </div>
-                                        <div class="right">
-                                            <span class="fz-12 text-light fw-600">Rp450.000</span>
-                                        </div>
-                                    </div>
-                                    <div class="cursor-pointer d-flex justify-content-between px-3 py-2 my-2 bg-orange">
-                                        <div class="left">
-                                            <span class="fz-12 text-light fw-600">Tahunan</span>
-                                        </div>
-                                        <div class="right">
-                                            <span class="fz-12 text-light fw-600">Rp600.000</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mobile -->
-                    <div class="col-12 col-lg-9 right bg-white borad-10 p-4 d-flex d-lg-none flex-column">
-                        <div class="right bg-white borad-10 p-lg-4">
+                    <div class="col-12 col-lg-9 bg-white borad-10 p-4 d-flex flex-column">
+                        <div class="bg-white borad-10 p-lg-4">
+                            <ul class="nav nav-pills mb-3 d-none d-lg-flex gap-2 justify-content-center my-3" id="pills-tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link fz-12 active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Refferalku</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link fz-12" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Memberku</button>
+                                </li>
+                            </ul>
                             <div class="tab-content" id="pills-tabContent">
                                 <div class="tab-pane fade show active gap-3" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                                     <div class="d-flex flex-column align-items-center gap-3">
@@ -140,10 +86,10 @@ if(!isset($_SESSION['userid'])){
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                                    <div class="d-flex flex-column gap-3">
+                                    <div class="d-flex flex-column align-items-center gap-3">
                                         <!-- Member Non Aktif -->
-                                        <!-- <img src="assets/img/starBig.png" alt="Gift" class="mt-5">
-                                        <span class="fz-14 fw-600 text-center">Member - 2 Bulan</span>
+                                        <img src="assets/img/starBig.png" alt="Gift" class="mt-5 starBig">
+                                        <span class="fz-14 fw-600 text-center">Member</span>
                                         <div class="d-flex justify-content-center gap-2">
                                             <span class="fz-10">Beli Paket tahunan dan dapatkan</span>
                                             <div class="badge bg-warning fz-10">Hemat 50%</div>
@@ -163,12 +109,12 @@ if(!isset($_SESSION['userid'])){
                                         </div>
                                         <div class="tab-pane fade" id="pills-three" role="tabpanel" aria-labelledby="pills-three-tab">
                                             <div class="d-flex align-items-center justify-content-center gap-2">
-                                                    <span class="fz-18 fw-600">Rp1000.000,-</span>
+                                                    <span class="fz-18 fw-600">Rp1.000.000,-</span>
                                                     <span class="fz-12">per 1 tahun</span>
                                                 </div>
                                         </div>
                                         </div>
-                                        <ul class="nav nav-pills mb-3 d-flex d-lg-none justify-content-center my-3" id="pills-tab" role="tablist">
+                                        <ul class="nav nav-pills mb-3 d-flex justify-content-center my-3" id="pills-tab" role="tablist">
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link fz-12 active" id="pills-one-tab" data-bs-toggle="pill" data-bs-target="#pills-one" type="button" role="tab" aria-controls="pills-one" aria-selected="true">2 bulan</button>
                                             </li>
@@ -178,11 +124,16 @@ if(!isset($_SESSION['userid'])){
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link fz-12" id="pills-three-tab" data-bs-toggle="pill" data-bs-target="#pills-three" type="button" role="tab" aria-controls="pills-three" aria-selected="false">1 tahun</button>
                                             </li>
-                                        </ul> -->
+                                        </ul>
+                                        <div class="d-none d-lg-block bg-blue py-3">
+                                            <a href="daftar.php" class="fz-12 text-light d-flex justify-content-center px-3 mx-2">
+                                                Gabung Member Sekarang</a>
+                                        </div>
+
                                         <!-- End -->
 
                                         <!-- Member Aktif -->
-                                            <img src="assets/img/starBig.png" alt="Gift" class="mt-5">
+                                        <!-- <img src="assets/img/starBig.png" alt="Gift" class="mt-5">
                                         <span class="fz-14 fw-600 text-center">Member - 2 Bulan</span>
                                         <div class="d-flex justify-content-center gap-2">
                                             <div class="badge bg-primary">Aktif</div>
@@ -270,7 +221,7 @@ if(!isset($_SESSION['userid'])){
                                                 <span class="visually-hidden">Next</span>
                                             </button>
                                             </div>
-                                        <hr>
+                                        <hr> -->
                                         <!-- End -->
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="fz-12 fw-600">Benefit Member</span>

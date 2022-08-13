@@ -1,0 +1,191 @@
+.fz-10 {
+    font-size: 10px !important;
+}
+
+.fz-12 {
+    font-size: 12px !important;
+}
+
+.fz-14 {
+    font-size: 14px !important;
+}
+
+.fz-16 {
+    font-size: 16px !important;
+}
+
+.fz-18 {
+    font-size: 18px !important;
+}
+
+.fz-20 {
+    font-size: 20px !important;
+}
+
+:root {
+    --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+    --msger-bg: #fff !important;
+    --border: 2px solid #ddd !important;
+    --left-msg-bg: #ececec !important;
+    --right-msg-bg: #579ffb !important;
+}
+
+.wrapperChat {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: start !important;
+    height: 75vh !important;
+    font-family: Helvetica, sans-serif !important;
+}
+
+.leftChat {
+    border: 1px solid #e6e6e6 !important;
+    width: 28rem !important;
+    height: calc(100% - 50px) !important;
+    overflow-y: scroll !important;
+}
+
+.msger {
+    display: flex !important;
+    flex-flow: column wrap !important;
+    justify-content: center !important;
+    /* width: 100% !important; */
+    /* max-width: 867px !important; */
+    height: calc(100% - 50px) !important;
+    width: 38rem !important;
+    border: var(--border) !important;
+    border-radius: 5px !important;
+    background: var(--msger-bg) !important;
+    box-shadow: 0 15px 15px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.msger-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 10px !important;
+    border-bottom: var(--border) !important;
+    background: #eee !important;
+    color: #666 !important;
+}
+
+.msger-chat {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 10px !important;
+}
+
+.msger-chat::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.msger-chat::-webkit-scrollbar-track {
+    background: #ddd !important;
+}
+
+.msger-chat::-webkit-scrollbar-thumb {
+    background: #bdbdbd !important;
+}
+
+.msg {
+    display: flex !important;
+    align-items: flex-end !important;
+    margin-bottom: 10px !important;
+}
+
+.msg:last-of-type {
+    margin: 0 !important;
+}
+
+.msg-img {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 10px !important;
+    background: #ddd !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: cover !important;
+    border-radius: 50% !important;
+}
+
+.msg-bubble {
+    max-width: 450px !important;
+    padding: 15px !important;
+    border-radius: 15px !important;
+    background: var(--left-msg-bg) !important;
+}
+
+.msg-info {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.msg-info-name {
+    margin-right: 10px !important;
+    font-weight: bold !important;
+}
+
+.msg-info-time {
+    font-size: 0.85em !important;
+}
+
+.left-msg .msg-bubble {
+    border-bottom-left-radius: 0 !important;
+}
+
+.right-msg {
+    flex-direction: row-reverse !important;
+}
+
+.right-msg .msg-bubble {
+    background: var(--right-msg-bg) !important;
+    color: #fff !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.right-msg .msg-img {
+    margin: 0 0 0 10px !important;
+}
+
+.msger-inputarea {
+    display: flex !important;
+    padding: 10px !important;
+    border-top: var(--border) !important;
+    background: #eee !important;
+}
+
+.msger-inputarea * {
+    padding: 10px !important;
+    border: none !important;
+    border-radius: 3px !important;
+    font-size: 1em !important;
+}
+
+.msger-input {
+    flex: 1 !important;
+    background: #ddd !important;
+}
+
+.msger-send-btn {
+    margin-left: 10px !important;
+    background: #29AAE3 !important;
+    color: #fff !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: background 0.23s !important;
+}
+
+.msger-send-btn:hover {
+    background: rgb(23, 105, 117) !important;
+}
+
+.msger-chat {
+    background-color: #fcfcfe !important;
+}
+
+.imgChat {
+    width: 2rem !important;
+    height: 2rem !important;
+    object-fit: cover !important;
+}

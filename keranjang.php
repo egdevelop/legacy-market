@@ -50,12 +50,13 @@ $num = mysqli_num_rows($addresses);
         <div class="bg-blue w-100 position-fixed z-3 d-none d-md-block">
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between py-3">
-                    <div class="left">
+                    <a onclick="history.back()" class="d-flex align-items-center cursor-pointer">
+                        <i class="ri-arrow-left-s-line text-light"></i>
                         <span class="fz-12 fw-bold text-light">Keranjang Belanja</span>
-                    </div>
+                    </a>
                     <div class="right">
-                        <form class="d-flex gap-3 align-items-center justify-content-center nosubmit">
-                            <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk"
+                        <form class="d-flex gap-3 align-items-center justify-content-center nosubmit" action="search.php" method="get">
+                            <input class="nosubmit z-1 form-control" type="search" placeholder="Cari produk" name="keyword"
                                 aria-label="Search">
                         </form>
                     </div>
@@ -69,7 +70,7 @@ $num = mysqli_num_rows($addresses);
                 <div class="row">
                     <div class="col-4 d-flex gap-2 align-items-center">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="checkAll"
+                            <input type="checkbox" class="form-check-input" id="checkAll" autocomplete="off"
                                 style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" onclick="checkAll()">
                         </div>
                         <div class="right">
@@ -94,13 +95,21 @@ $num = mysqli_num_rows($addresses);
 
         <div class="container-lg bg-white mt-4 py-3 d-none d-md-block">
             <div class="container">
-                <?php foreach($data as $a) { $total += $a['price'] * $a['quantity']; $count++;?>
+                <?php foreach($data as $a) { 
+                    $total += $a['price'] * $a['quantity'];
+                    if($_SESSION['role'] == 3) {
+                        $price = whichPrice($a['grosir'], $a['price'], $a['quantity']);
+                    } else {
+                        $price = $a['price'];
+                    }
+                    $count++;
+                ?>
                 <div class="row border-abu mt-3 py-2">
                     <div class="col-4 d-flex gap-2 align-items-center">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input all"
-                                style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" id="check"
-                                onchange="checkProduct(this.checked, <?= $a['price'] ?>, <?= $a['quantity'] ?>, <?= $a['id_cart'] ?>, <?= $a['id_variant'] ?>)">
+                            <input type="checkbox" class="form-check-input all check" autocomplete="off"
+                                style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" id="check<?= $count ?>" data-qty="<?= $a['quantity'] ?>"
+                                onchange="checkProduct(this.checked, <?= $price ?>, this.dataset.qty, <?= $a['id_cart'] ?>, <?= $a['id_variant'] ?>); console.log(this.dataset.qty)">
                         </div>
                         <div class="center">
                             <img src="<?= $a['photo'] ?>" alt="" class="img-fluid object-cover imgKeranjang">
@@ -109,7 +118,7 @@ $num = mysqli_num_rows($addresses);
                             <span class="fz-10">
                                 <?= $a['name'] ?>
                             </span>
-                            <span class="fz-10 fw-600 mt-2">Eceran</span>
+                            <span class="fz-10 fw-600 mt-2" id="jenis"><?= ($a['quantity'] >= 60 && $_SESSION['role'] == 3) ? "Grosir" : "Eceran" ?></span>
                         </div>
                     </div>
                     <div class="col-2 d-flex flex-column">
@@ -120,33 +129,27 @@ $num = mysqli_num_rows($addresses);
                         <span class="fz-12 fw-500">
                             <div class="wrapper">
                                 <span class="minus"  onclick="
-                                const a = document.getElementById('num<?= $count ?>');
+                                var a = document.getElementById('num<?= $count ?>');
                                 if(parseInt(a.innerText) > 1) {
-                                    a.innerText = parseInt(a.innerText) - 1;
+                                    var b = parseInt(a.innerText) - 1;
+                                    a.innerText = b;
                                 }
-                                document.getElementById('edit<?= $count ?>').style = 'display: block';
+                                editQuantity(<?= $a['id_cart'] ?>, b, 'check<?= $count ?>', <?= $price ?>);
                                 ">-</span>
                                 <span class="num<?= $count ?>" id="num<?= $count ?>"><?= $a['quantity'] ?></span>
                                 <span class="plus" onclick="
-                                const a = document.getElementById('num<?= $count ?>');
-                                a.innerText = parseInt(a.innerText) + 1;
-                                document.getElementById('edit<?= $count ?>').style = 'display: block';
+                                var a = document.getElementById('num<?= $count ?>');
+                                var b = parseInt(a.innerText) + 1;
+                                a.innerText = b;
+                                editQuantity(<?= $a['id_cart'] ?>, b, 'check<?= $count ?>', <?= $price ?>);
                                 ">+</span>
                             </div>
                         </span>
                     </div>
                     <div class="col-2">
-                        <span class="fz-12 fw-500 yellow"><?= $a['price'] ?></span>
+                        <span class="fz-12 fw-500 yellow"><?= $price ?></span>
                     </div>
                     <div class="col-2 text-danger">
-                        <a href="javascript:void(0)" style="color: yellow; display: none;" id="edit<?= $count ?>" onclick="
-                        var a = document.getElementById('num<?= $count ?>').innerText;
-                        editQuantity(<?= $a['id_cart'] ?>, a)" >
-                            <span class="fz-12 fw-500 d-flex align-items-center gap-1">
-                                <i class="ri-save-line"></i>
-                                <span>Simpan Perubahan</span>
-                            </span>
-                        </a>
                         <a href="server/process/removeCart.php?id=<?= $a['id_cart'] ?>" style="color: red;">
                             <span class="fz-12 fw-500 d-flex align-items-center gap-1">
                                 <i class="ri-delete-bin-fill"></i>
@@ -162,33 +165,40 @@ $num = mysqli_num_rows($addresses);
 
         <!-- Mobile -->
         <div class="bg-white pt-4 pb-5 mb-5 d-block d-md-none">
-            <?php foreach($data as $a) { $total2 += $a['price'] * $a['quantity']; $c++?>
+            <?php foreach($data as $a) { 
+                $total2 += $a['price'] * $a['quantity']; 
+                $c++;
+                if($_SESSION['role'] == 3) {
+                    $price2 = whichPrice($a['grosir'], $a['price'], $a['quantity']);
+                } else {
+                    $price2 = $a['price'];
+                }
+            ?>
             <div class="container pt-4 pb-3 d-flex gap-2">
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input"
-                        style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" id="exampleCheck1" 
-                        onchange="checkProduct(this.checked, <?= $a['price'] ?>, <?= $a['quantity'] ?>, <?= $a['id_cart'] ?>, <?= $a['id_variant'] ?>); console.log(<?= $a['id_variant'] ?>)">
+                        style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" id="check1<?= $c ?>" data-qty="<?= $a['quantity'] ?>"
+                        onchange="checkProduct(this.checked, <?=$price2?>, this.dataset.qty, <?= $a['id_cart'] ?>, <?= $a['id_variant'] ?>); console.log(<?= $a['id_variant'] ?>)">
                 </div>
-                <img src="assets/img/varian.jpg" alt="" class="w-4rem object-cover">
+                <img src="<?= $a['photo'] ?>" alt="" class="w-4rem object-cover">
                 <div class="desc">
                     <p class="fz-14 fw-600"><?= $a['name'] ?></p>
-                    <span class="orange fz-12 fw-600 me-3">Rp. <?= $a['price'] ?></span>
-                    <span class="fz-10 fw-600 m-2" style="color: red; display: none;" id="edit1<?= $count ?>"  onclick="
-                        var a = document.getElementById('num1<?= $count ?>').innerText;
-                        editQuantity(<?= $a['id_cart'] ?>, a)">Simpan Perubahan</span>
+                    <span class="orange fz-12 fw-600 me-3">Rp. <?= $price2 ?></span>
                     <div class="wrapper">
                         <span class="minus"  onclick="
-                        const a = document.getElementById('num1<?= $count ?>');
-                        if(parseInt(a.innerText) > 1) {
-                            a.innerText = parseInt(a.innerText) - 1;
-                        }
-                        document.getElementById('edit1<?= $count ?>').style = 'display: block';
+                            var a = document.getElementById('num1<?= $count ?>');
+                                if(parseInt(a.innerText) > 1) {
+                                    var b = parseInt(a.innerText) - 1;
+                                    a.innerText = b;
+                                }
+                            editQuantity(<?= $a['id_cart'] ?>, b, 'check1<?= $c ?>', <?= $price2 ?>)
                         ">-</span>
                         <span class="num" id="num1<?= $count ?>"><?= $a['quantity'] ?></span>
                         <span class="plus" onclick="
-                        const a = document.getElementById('num1<?= $count ?>');
-                        a.innerText = parseInt(a.innerText) + 1;
-                        document.getElementById('edit1<?= $count ?>').style = 'display: block';
+                        var a = document.getElementById('num1<?= $count ?>');
+                        var b = parseInt(a.innerText) + 1;
+                        a.innerText = b;
+                        editQuantity(<?= $a['id_cart'] ?>, b, 'check1<?= $c ?>', <?= $a['price'] ?>)
                         ">+</span>
                     </div>
                 </div>
@@ -231,8 +241,7 @@ $num = mysqli_num_rows($addresses);
                 </div>
             </div>
             <div class="container pt-4 pb-3 mb-3 d-flex gap-2 border-top-custom">
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input"
+                <div class="form-check">0
                         style="font-size: 18px; border-radius: 0; border: 1px solid #29AAE3" id="exampleCheck1">
                 </div>
                 <img src="assets/img/varian.jpg" alt="" class="w-4rem object-cover">
@@ -254,61 +263,6 @@ $num = mysqli_num_rows($addresses);
         <!-- Navbar Bottom -->
         <div class="container-lg navbarBottomCart bg-white start-0 end-0 bottom-0 mt-4 py-3">
             <div class="container d-flex flex-column gap-2">
-                <!-- Modal Voucher -->
-                <div class="modal fade" id="btnVoucher" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header d-block" style="border: none;">
-                                <div class="col-12 d-flex justify-content-between">
-                                    <h5 class="modal-title fz-13" id="staticBackdropLabel">Pilih Voucher</h5>
-                                    <span class="blue fz-18 me-3"><i class="ri-coupon-2-line"></i></span>
-                                </div>
-                                <div class="col-12">
-                                    <form
-                                        class="input-group d-flex align-items-center justify-content-between my-1 py-3 px-4 gap-4"
-                                        style="background-color: #F8F8F8;">
-                                        <h5 class="fz-10 mt-2">Tambah Voucher</h5>
-                                        <input class="voucherInput form-control bg-transparent py-1" type="search"
-                                            placeholder="Masukkan Kode Voucher" aria-label="Search"
-                                            style="width: 10rem; border-color:#C1C1C1; font-size: 12px">
-                                        <button class="btn fz-12 py-1"
-                                            style="color: #c1c1c1;border-color:#C1C1C1;">Pakai</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="modal-body">
-                                <div class="d-flex justify-content-between gap-2 mb-3">
-                                    <span class="fz-12 fw-600">Voucher Gratis Ongkir</span>
-                                    <span class="fz-10">Pilih 1</span>
-                                </div>
-
-                                <label class="radioWrapper ps-1 d-flex align-items-start ">
-                                    <div class="card-body border-card py-0 px-0 d-flex justify-content-between ">
-                                        <img src="assets/img/gratisongkir.png" class=" " alt="">
-                                        <div class="d-block my-auto">
-                                            <h5 class="f-12 mt-3 me-4 ">Min.Belanja Rp200RB</h5>
-
-                                            <p class="f-10 text-prem">Berakhir dlm 9 jam</p>
-                                        </div>
-                                        <div class=" mt-auto me-2 mb-2">
-                                            <input type="radio" name="radio">
-                                            <span class="check mt-4 end-0"></span>
-                                            <p class="f-10 mb-0 ">S&K</p>
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn fz-13" data-bs-dismiss="modal">Nanti
-                                    saja</button>
-                                <button type="button"
-                                    class="text-light btn btn-blue px-3 py-2 fz-13">Konfirmasi</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Done Voucher -->
                 <!-- <div class="d-flex gap-4 align-items-center justify-content-between justify-content-sm-end">
                     <div class="left d-flex align-items-center">
@@ -326,11 +280,9 @@ $num = mysqli_num_rows($addresses);
                         <div class="right">
                             <span class="fz-11 fw-500">Total (<span id="count">0</span> produk)</span>
                             <span class="fz-11 fw-600 orange">Rp. </span><span class="fz-11 fw-600 orange" id="total">0</span>
-                            <input type="text" name="idCart" id="inputCarts" hidden required>
-                            <input type="text" name="total" id="inputTotal" hidden required>
-                            <input type="text" name="idVariant" id="inputVariant" hidden required>
-                            <input type="text" name="quantity" id="inputQty" hidden required>
-                            <button id="btn-checkout" onclick=" var a = document.getElementById('inputVariant').value; var b = document.getElementById('inputQty').value ;checkStock(a, b)"
+                            <input type="text" name="idCart" id="inputCarts" autocomplete="off" hidden required>
+                            <input type="text" name="idVariant" id="inputVariant" autocomplete="off" hidden required>
+                            <button id="btn-checkout" type="submit" onclick=""
                             class="ms-3 right text-center bg-blue fz-12 text-light px-3 py-2" style="border: none;">
                             Checkout
                             </button>
@@ -366,9 +318,14 @@ $num = mysqli_num_rows($addresses);
         a.checked = false;
     });
 
+    var role = <?= $_SESSION['role'] ?>;
+
     // edit quantity
-    function editQuantity(id, qty) {
-        console.log(id, qty);
+    function editQuantity(id, qty, a, z) {
+        if(qty >= 1){
+            var tempTotal = document.getElementById('total').innerHTML;
+            var jenis = document.getElementById('jenis');
+            document.getElementById('total').innerHTML = "<img src='assets/img/loading.gif' width='20px' alt=''>";
         $.ajax({
             url: "server/ajax/edit-quantity.php",
             type: "POST",
@@ -377,19 +334,40 @@ $num = mysqli_num_rows($addresses);
                 qty: qty
             },
             success: function(data) {
-                location.reload();
-            }
-        });
+                var c = $('#' + a).attr('data-qty')
+                $('#' + a).attr('data-qty', data)
+                var b = $('#' + a).attr('data-qty')
+                var total = document.getElementById('total');
+                    if(c < b) {
+                        total.innerText = parseInt(tempTotal) + z
+                    } else {
+                        total.innerText = parseInt(tempTotal) - z
+                    }
+                    if(total.innerText <= 0) {
+                        total.innerText = 0
+                    }
+                    if(document.getElementById(a).checked != true) {
+                        total.innerText = 0
+                    }
+                    if(role == 3) {
+                        if(b >= 60) {
+                            jenis.innerText = "Grosir"
+                        } else {
+                            jenis.innerText = "Eceran"
+                        }
+                    }
+                console.log(c, b, total.innerText)
+                }
+            })
+        }
     }
 
     // Check all product
     function checkAll() {
-        var checkboxes = document.querySelectorAll('#check');
+        var checkboxes = document.querySelectorAll('.check');
         var check = document.getElementById('checkAll');
-        const inputTotal = document.getElementById('inputTotal');
         const inputCarts = document.getElementById('inputCarts');
         const inputVariant = document.getElementById('inputVariant');
-        const inputQty = document.getElementById('inputQty');
         const total = document.getElementById('total');
         if (check.checked) {
             for (var i = 0; i < checkboxes.length; i++) {
@@ -397,18 +375,14 @@ $num = mysqli_num_rows($addresses);
             }
             total.innerText = <?= $total ?>;
             inputCarts.value = <?= json_encode($idcarts) ?>;
-            inputTotal.value = total.innerText;
             inputVariant.value = <?= json_encode($idvariants) ?>;
-            inputQty.value = <?= json_encode($qtys) ?>;
             document.getElementById('count').innerText = <?= $count ?>;
         } else {
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = false;
             }
             inputCarts.value = "";
-            inputTotal.value = "";
             inputVariant.value = "";
-            inputQty.value = "";
             total.innerText = 0;
             document.getElementById('count').innerText = 0;
         }
@@ -416,20 +390,16 @@ $num = mysqli_num_rows($addresses);
 
     function checkProduct(checked, price, quantity, id, idV) {
         const total = document.getElementById('total');
-        const inputTotal = document.getElementById("inputTotal");
         if(checked == true) {
             total.innerText = parseInt(total.innerText) + (price * quantity);
-            inputTotal.value = parseInt(total.innerText);
             document.getElementById('inputCarts').value = document.getElementById('inputCarts').value + ',' + id;
             document.getElementById('inputVariant').value = document.getElementById('inputVariant').value + ',' + idV;
-            document.getElementById('inputQty').value = document.getElementById('inputQty').value + ',' + quantity;
             document.getElementById('count').innerText = parseInt(document.getElementById('count').innerText) + 1;
         } else {
             if(total.innerText > 0) {
                 total.innerText = parseInt(total.innerText) - (price * quantity);
                 document.getElementById('count').innerText = parseInt(document.getElementById('count').innerText) - 1;
             }
-            inputTotal.value = parseInt(total.innerText);
             let value = document.getElementById('inputCarts').value;
             var array = value.split(',');
             var i = id;
@@ -444,17 +414,13 @@ $num = mysqli_num_rows($addresses);
                 return item != i2;
             });
             document.getElementById('inputVariant').value = array2.join(',');
-            let value3 = document.getElementById('inputQty').value;
-            var array3 = value3.split(',');
-            var deleted = array3.pop();
-            document.getElementById('inputQty').value = array3.join(',');
         }
         if(parseInt(document.getElementById('count').innerText) == <?= $asd ?>) {
             document.getElementById('checkAll').checked = true;
         } else {
             document.getElementById('checkAll').checked = false;
         }
-        console.log(document.getElementById('inputVariant').value, checked, price, quantity, id, idV, document.getElementById('inputQty').value);
+        console.log(document.getElementById('inputVariant').value, checked, price, quantity, id, idV);
     }
 
     // Check Stock
@@ -468,7 +434,7 @@ $num = mysqli_num_rows($addresses);
             },
             success: function(data) {
                 if(data == "true") {
-                    document.getElementById('form').submit();
+                    console.log("true");
                 } else {
                     console.log(data);
                     location.reload();
@@ -482,10 +448,6 @@ $num = mysqli_num_rows($addresses);
         if (i !== -1) {
             arr.splice(i, 1);
         }
-    }
-
-    function fillData() {
-
     }
 
     </script>

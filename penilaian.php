@@ -1,9 +1,43 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/server/config/functions.php';
-$product = getProduct($_GET['id']);
+if(!isset($_SESSION['userid'])){
+    header('Location: /login.php');
+}
+$photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM variants WHERE id_product = '$_GET[id]'"))['photo'];
+$reviews = mysqli_query($conn, "SELECT * FROM reviews WHERE id_product = '$_GET[id]'");
+$r5 = 0; $r4 = 0; $r3 = 0; $r2 = 0; $r1 = 0;
+$c = 0; $m = 0;
+$sum = 0;
+while($row = mysqli_fetch_assoc($reviews)){
+    if($row['rate'] == 5) {
+        $r5++;
+    } elseif($row['rate'] == 4) {
+        $r4++;
+    } elseif($row['rate'] == 3) {
+        $r3++;
+    } elseif($row['rate'] == 2) {
+        $r2++;
+    } elseif($row['rate'] == 1) {
+        $r1++;
+    }
+    if($row['review']) {
+        $c++;
+    }
+    if($row['photo']) {
+        $m++;
+    }
+    $sum += $row['rate'];
+    $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM users WHERE id = '$row[id_user]'"));
+    $review[] = [
+        'userImg' => $user['photo'],
+        'id' => $row['id'],
+        'name' => $user['name'],
+        'rate' => $row['rate'],
+        'review' => $row['review'],
+        'photo' => $row['photo']
+    ];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -26,7 +60,7 @@ $product = getProduct($_GET['id']);
                         </span>
                     </a>
                     <div class="right">
-                        <img src="assets/img/productsCart.jpg" alt="" class="imgVariasi">
+                        <img src="<?= $photo ?>" alt="" class="imgVariasi">
                     </div>
                 </div>
                 <hr class="my-2 py-0">
@@ -34,7 +68,7 @@ $product = getProduct($_GET['id']);
                     <div class="col-12 col-lg-4">
                         <div class="d-flex align-items-start flex-column">
                             <div class="left ms-2">
-                                <span class="fz-16 fw-700 yellow">4.9</span>
+                                <span class="fz-16 fw-700 yellow"><?= $sum / count($reviews) ?></span>
                                 <span class="fz-12 fw-500 yellow">dari 5</span>
                             </div>
                             <div class="right">
@@ -43,171 +77,80 @@ $product = getProduct($_GET['id']);
                                 <span class="fz-13 yellow"><i class="ri-star-fill"></i></span>
                                 <span class="fz-13 yellow"><i class="ri-star-fill"></i></span>
                                 <span class="fz-13 yellow"><i class="ri-star-fill"></i></span>
-                                <span class="fz-13 yellow">4.9/5</span>
-                                <span class="fz-13 yellow">(115 Ulasan)</span>
+                                <span class="fz-13 yellow"><?= $sum / count($reviews) ?>/5</span>
+                                <span class="fz-13 yellow">(<?= count($reviews) ?> Ulasan)</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-lg-8">
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="all" />
                             <span class="radio-btn variasi px-3 py-1 fz-10">Semua</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">5 Bintang (107)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="5" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">5 Bintang (<?= $r5 ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">4 Bintang (5)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="4" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">4 Bintang (<?= $r4 ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">3 Bintang (2)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="3" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">3 Bintang (<?= $r3 ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">2 Bintang (0)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="2" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">2 Bintang (<?= $r2 ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">1 Bintang (0)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="1" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">1 Bintang (<?= $r1 ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">Dengan Komentar (34)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="komentar" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">Dengan Komentar (<?= $c ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
-                            <span class="radio-btn variasi px-3 py-1 fz-10">Dengan Media (33)</span>
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="media" />
+                            <span class="radio-btn variasi px-3 py-1 fz-10">Dengan Media (<?= $m ?>)</span>
                         </label>
                         <label class="card-ulasan m-1">
-                            <input type="radio" name="radioUlasan" class="radio-ulasan" />
+                            <input type="radio" name="radioUlasan" class="radio-ulasan" value="member" />
                             <span class="radio-btn variasi px-3 py-1 fz-10">Member (1)</span>
                         </label>
                     </div>
                 </div>
-                <div class="row d-flex my-4 ms-lg-4">
-                    <div class="col-1 profile">
-                        <img src="assets/img/profile.jpg" alt="" class="profileImg">
-                    </div>
-                    <div class="col-9 d-flex flex-column">
-                        <span class="fz-10">Achmad</span>
-                        <div class="star">
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
+                <div class="asd">
+                    <?php
+                    foreach($review as $r) :
+                    ?>
+                    <div class="row d-flex my-4 ms-lg-4">
+                        <div class="col-1 profile">
+                            <img src="<?= $r['userImg'] ?>" alt="" class="profileImg">
                         </div>
-                        <span class="fz-10">2022-04-05 11:58 | Variasi: N - MERAH MUDA
-                        </span>
-                        <span class="fz-12 mt-3">Alhamdulilah Barang sudah sampai dipacking dengan rapi.. bagus
-                            tidak
-                            rusak.
-                            Terima kasih
-                        </span>
-                        <div class="d-flex gap-2">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <div class="row d-flex my-4 ms-lg-4">
-                    <div class="col-1 profile">
-                        <img src="assets/img/profile.jpg" alt="" class="profileImg">
-                    </div>
-                    <div class="col-9 d-flex flex-column">
-                        <span class="fz-10">Achmad</span>
-                        <div class="star">
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                            <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
-                        </div>
-                        <span class="fz-10">2022-04-05 11:58 | Variasi: N - MERAH MUDA
-                        </span>
-                        <span class="fz-12 mt-3">Alhamdulilah Barang sudah sampai dipacking dengan rapi.. bagus
-                            tidak
-                            rusak.
-                            Terima kasih
-                        </span>
-                        <div class="d-flex gap-2">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                            <img src="assets/img/imgUlasan.jpg" alt="" class="imgUlasan mt-3">
-                        </div>
-                    </div>
-                </div>
-                <hr />
-            </div>
-        </div>
-    </div>
-
-    <!-- Cart Modal -->
-    <div class="modal animateCustom" id="exampleModalToggle" aria-hidden="true"
-        aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-        <div class="modal-dialog border-none"
-            style="position: absolute !important; bottom: 0 !important; margin: 0; max-height: 100%;">
-            <div class="modal-content" style="border: none; outline: none; border-radius: 0">
-                <div class="modal-body">
-                    <div class="d-flex align-items-center gap-3">
-                        <img src="assets/img/productsCart.jpg" alt="">
-                        <div class="d-flex flex-column">
-                            <span class="fz-16 orange fw-600">Rp. <span id="retail">20000</span></span>
-                            <span class="fz-12 fw-500">Stok : <span id="stok"><?= $product['stock'] ?></span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-body" style="width:90%">
-                    <span class="fz-12 mb-3">Variasi</span>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <?php foreach($product['variants'] as $v) : ?>
-                        <label class="card-variasi px-0">
-                            <input type="radio" name="radioVariasi" class="radio-variasi" onclick="
-                            document.getElementById('retail').innerText = '<?= $v['retail_price'] ?>';
-                            document.getElementById('stok').innerText = '<?= $v['stock'] ?>';
-                            document.getElementById('asd').href = 'server/process/addToCart.php?id=' + <?= $v['id'] ?> + '&qty=' + 1;
-                            document.getElementById('num2').innerText = 1;
-                            " />
-                            <div class="bg-variasi radio-btn variasi p-1 fz-10">
-                                <img src="assets/img/products1.jpg" alt="" class="imgVariasi">
-                                <span class="radio-btn text-dark px-2 fz-10"><?= $v['name'] ?></span>
+                        <div class="col-9 d-flex flex-column">
+                            <span class="fz-10"><?= $r['name'] ?></span>
+                            <div class="star">
+                                <?php for($i = 1; $i <= $r['rate']; $i++) : ?>
+                                    <span class="fz-10 yellow"><i class="ri-star-fill"></i></span>
+                                <?php endfor; ?>
                             </div>
-                            <input type="hidden" id="id" value="<?= $v['id'] ?>">
-                        </label>
-                        <?php endforeach; ?>
+                            <span class="fz-12 mt-3">
+                                <?= $r['review'] ?>
+                            </span>
+                            <div class="d-flex gap-2">
+                                <img src="<?= $r['photo'] ?>" alt="" class="imgUlasan mt-3">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <div class="left">
-                        <span class="fz-14">Jumlah</span>
-                    </div>
-                    <div class="wrapper">
-                    <span class="minus"  onclick="
-                        const a = document.getElementById('num2');
-                        if(parseInt(a.innerText) > 1) {
-                            a.innerText = parseInt(a.innerText) - 1;
-                        }
-                        const id = document.getElementById('id');
-                        document.getElementById('asd').href = 'server/process/addToCart.php?id=' + id.value + '&qty=' + a.innerText;
-                        ">-</span>
-                        <span class="num" id="num2">1</span>
-                        <span class="plus" onclick="
-                        const a = document.getElementById('num2');
-                        a.innerText = parseInt(a.innerText) + 1;
-                        const id = document.getElementById('id');
-                        document.getElementById('asd').href = 'server/process/addToCart.php?id=' + id.value + '&qty=' + a.innerText;
-                        ">+</span>
-                    </div>
-                    <a href="javascript:void(0)" id="asd" class="btn bg-blue text-light w-100">Masukkan Keranjang</a>
+                    <hr />
+                    <?php
+                    endforeach;
+                    ?>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- Foot -->
@@ -265,6 +208,24 @@ $product = getProduct($_GET['id']);
     function windowScroll() {
         mainNav.classList.toggle("bg-blue", mainNav.scrollTop > 50 || document.documentElement.scrollTop > 50);
     }
+
+    const radios = document.querySelectorAll('.radio-ulasan');
+        const id = <?= $_GET['id'] ?>;
+        radios.forEach(function(radio) {
+            radio.addEventListener('click', function() {
+                $.ajax({
+                    url: 'server/ajax/getUlasan.php',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        value: radio.value
+                    },
+                    success: function(data) {
+                        $('.asd').html(data);
+                    }
+                });
+            });
+        });
 
     </script>
 </body>
